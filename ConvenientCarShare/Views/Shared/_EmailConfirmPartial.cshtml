@@ -1,0 +1,49 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using ConvenientCarShare.Areas.Identity.Data
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+
+@{
+    var showBanner = false;
+}
+
+@if (SignInManager.IsSignedIn(User))
+{
+    var user = await UserManager.GetUserAsync(User);
+
+    if(user == null)
+    {
+        showBanner = true;
+        return;
+
+    }
+
+    if (!user.EmailConfirmed)
+    {
+        showBanner = true;
+    }
+}
+
+@if (showBanner)
+{
+    <script>
+        function closeBanner() {
+            document.getElementById("banner").hidden = true;
+        }
+    </script>
+
+    <div class="alert alert-warning text-center">
+
+        <a href="#" class="close" data-dismiss="alert">
+            &times;
+        </a>
+
+        <a asp-area="Identity" asp-page="/Account/Manage/Index" class="text-info">
+                Your Email is not confirmed. Please Confirm your Email before use.
+        </a>
+
+    </div>
+
+
+}
+

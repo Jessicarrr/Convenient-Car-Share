@@ -1,0 +1,106 @@
+﻿
+@{
+    ViewData["Title"] = "Manage Users";
+    Layout = "~/Views/Manage/_Layout.cshtml";
+}
+
+@using ConvenientCarShare.Areas.Identity.Data
+@model ApplicationUser[]
+@section Scripts
+    {
+    <script src="~/js/manageUserScript.js"></script>
+}
+
+
+<br><br>
+<table class="table table-hover table-striped">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+        </tr>
+    </thead>
+    <tbody>
+
+        @foreach (var customer in Model)
+        {
+            <tr>
+                <td>@customer.Name</td>
+                <td>@customer.Email</td>
+                <td>@customer.PhoneNumber</td>
+                <td>
+                    <!-- button get the manage modal -->
+                    <button class="btn-link" data-toggle="modal" data-target="#manageModal" onclick='passToModal(@Html.Raw(Json.Serialize(customer)))'>Manage</button>
+
+
+                </td>
+            </tr>
+        }
+
+    </tbody>
+</table>
+
+
+
+
+<br><br>
+
+
+<!-- Modal -->
+<div class="modal" id="manageModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="myModalLabel">User Manage Page</h4>
+            </div>
+            <!-- User Data -->
+            <div class="modal-body"></div>
+            <table class="table table-hover table-striped">
+
+                <tr>
+                    <td id="userid"></td>
+                </tr>
+                <tr>
+                    <td id="userName"></td>
+                </tr>
+                <tr>
+                    <td id="userEmail"></td>
+                </tr>
+
+            </table>
+
+            <div class="modal-footer">
+
+
+
+                <form asp-action="DeleteUser" method="post" id="manageForm" style="float: right;">
+
+                    <input name="userID" value="" id="userID" hidden>
+
+                    <button type="button" class="btn btn-danger" id="blockbtn">Block</button>
+
+                    <input type="submit" value="Delete" class="btn btn-danger" id="delete" />
+
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </form>
+
+                <form asp-action="ComposeTo" asp-controller="Messages" style="float: right; margin-right: 10px;">
+
+                    <input name="email" value="" id="warningMessageEmail" hidden>
+
+                    <input name="title" value="Warning" hidden>
+
+                    <input type="submit" value="Send Warning" class="btn btn-warning" id="warningbtn" />
+                </form>
+
+            </div>
+
+
+
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+</div>
+
+

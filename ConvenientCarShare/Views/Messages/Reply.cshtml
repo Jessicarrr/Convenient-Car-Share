@@ -1,0 +1,48 @@
+﻿@model  ConvenientCarShare.Views.Messages.ReplyModel
+@{
+    ViewData["Title"] = "Compose";
+}
+
+<h2>Compose</h2>
+<div class="row">
+
+    <div class="col-md-6">
+        <form method="post" asp-controller="Messages" asp-action="SendReply">
+
+            @if (Model.Errors.Count() > 0)
+            {
+                <div class="alert alert-danger" role="alert">
+                    @foreach (var error in Model.Errors)
+                    {
+                        <p>- @error</p>
+
+                    }
+                </div>
+            }
+
+            <div asp-validation-summary="All" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="@Model.Message.Receiver">User Email</label>
+                <input asp-for="@Model.Message.Receiver" class="form-control" name="Receiver" value="@Model.Receiver" readonly />
+                <span asp-validation-for="@Model.Message.Receiver" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="@Model.Message.Title"></label>
+                <input asp-for="@Model.Message.Title" class="form-control" name="Title" value="@Model.Title" />
+                <span asp-validation-for="@Model.Message.Title" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="@Model.Message.Text"></label>
+                <input asp-for="@Model.Message.Text" class="form-control" name="Text" value="@Model.Text" />
+                <span asp-validation-for="@Model.Message.Text" class="text-danger"></span>
+            </div>
+
+            <input type="hidden" name="ReplyingTo" value="@Model.ReplyingTo" />
+
+            <div class="form-group">
+                <button type="submit" class="btn btn-default">Send Message</button>
+            </div>
+        </form>
+    </div>
+    </div>
+

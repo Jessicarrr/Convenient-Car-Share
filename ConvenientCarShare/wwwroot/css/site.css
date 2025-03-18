@@ -1,0 +1,78 @@
+﻿/* Please see documentation at https://docs.microsoft.com/aspnet/core/client-side/bundling-and-minification\ 
+for details on configuring this project to bundle and minify static web assets. */
+body {
+    padding-top: 50px;
+    padding-bottom: 20px;
+    height: 100%;
+}
+html {
+    height: 100%;
+}
+/* centered columns styles */
+.row-centered {
+    text-align: center;
+}
+
+.col-centered {
+    display: inline-block;
+    float: none;
+    /* reset the text-align */
+    text-align: left;
+    /* inline-block space fix */
+    margin-right: -4px;
+    text-align: center;
+
+}
+
+/*padding: 15px 5px 20px 15px;
+max-height: 200px;*/
+.content {
+    font-size: 13px;
+    font-weight: 400;
+    overflow-y: auto;
+    overflow-x: hidden;
+    max-height: 160px;
+}
+
+/* Carousel */
+.carousel-caption p {
+    font-size: 20px;
+    line-height: 1.4;
+}
+
+/* Make .svg files in the carousel display properly in older browsers */
+.carousel-inner .item img[src$=".svg"] {
+    width: 100%;
+}
+
+/* QR code generator */
+#qrCode {
+    margin: 15px;
+}
+
+/* Hide/rearrange for smaller screens */
+@media screen and (max-width: 767px) {
+    /* Hide captions */
+    .carousel-caption {
+        display: none;
+    }
+}
+
+/* The text that says "total price" when booking and paying. */
+.label-total-price {
+    font-size: 16px;
+}
+
+/* The price displayed (e.g. "$20.00") when booking and paying. */
+.display-total-price {
+    font-size: 16px;
+    color: green;
+}
+
+.return-car-table {
+
+}
+.return-car-table-data {
+    padding-right: 50px;
+}
+

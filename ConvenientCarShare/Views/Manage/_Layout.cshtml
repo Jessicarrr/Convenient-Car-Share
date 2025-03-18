@@ -1,0 +1,28 @@
+﻿@{
+    Layout = "/Views/Shared/_layout.cshtml";
+}
+
+<h2>Manage</h2>
+
+<div class="text-center">
+    <h4>Manage Users, Cars and Car Spaces</h4>
+    <br>
+    <ul class="nav nav-tabs" style="display:inline-block">
+        <li>
+            <a href="@Url.Action("Index", "ManageUsers")" data_toggle="tab"> Users </a>
+        </li>
+        <li>
+            <a href="@Url.Action("Index", "ManageCars")" data_toggle="tab"> Cars </a>
+        </li>
+        <li>
+            <a href="@Url.Action("Index", "ManageParkingAreas")" data_toggle="tab"> Spots </a>
+        </li>
+
+    </ul>
+</div>
+
+@RenderBody()
+
+@section Scripts {
+    @RenderSection("Scripts", required: false)
+}

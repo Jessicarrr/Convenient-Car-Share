@@ -1,0 +1,66 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using ConvenientCarShare.Areas.Identity.Data
+@using ConvenientCarShare.Controllers
+@using ConvenientCarShare.Data
+
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+
+
+
+@if (SignInManager.IsSignedIn(User))
+{
+
+
+
+    <form asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Page("/Index", new { area = "" })" method="post" id="logoutForm" class="navbar-right">
+        <ul class="nav navbar-nav navbar-right">
+            <li>
+                <a asp-controller="Messages" asp-action="Index" id="messages-link">Messages</a>
+            </li>
+
+            @if (User.IsInRole(Constants.AdministratorRole))
+            {
+                <li><a asp-area="" asp-controller="ManageUsers" asp-action="Index">Manage</a></li>
+            }
+            <li>
+                <a asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Hello @UserManager.GetUserName(User)!</a>
+            </li>
+            <li>
+                <button type="submit" class="btn btn-link navbar-btn navbar-link">Logout</button>
+            </li>
+        </ul>
+    </form>
+
+    <script>
+        function setNumMessages() {
+            $.ajax({
+                type: "POST",
+
+                url: '@Url.Action("GetNumUnreadMessages", "Messages")',
+
+                datatype: "JSON",
+
+                success: function (data) {
+                    if (data > 0) {
+                        document.getElementById("messages-link").innerHTML = "Messages(" + data + ")";
+
+                    }
+
+                }
+            });
+
+        }
+        window.onload = setNumMessages;
+
+    </script>
+}
+else
+{
+    <ul class="nav navbar-nav navbar-right">
+        <li><a asp-area="Identity" asp-page="/Account/Register">Register</a></li>
+        <li><a asp-area="Identity" asp-page="/Account/Login">Login</a></li>
+    </ul>
+}
+
+

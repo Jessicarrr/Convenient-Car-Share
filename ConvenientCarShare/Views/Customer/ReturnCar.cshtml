@@ -1,0 +1,86 @@
+﻿@{
+    ViewData["Title"] = "ReturnCar";
+}
+@model ConvenientCarShare.Views.Customer.ReturnCarModel
+
+
+<div id="map"></div>
+
+<!-- Modal -->
+<div class="modal" id="manageModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="myModalLabel">Return Car</h4>
+            </div>
+            <!-- Car and Parking Data -->
+            <div class="modal-body"></div>
+
+            <p id="description">Where you want to park?</p>
+            <div class="alert alert-warning">Note: If your booking is currently overdue. A $20/hour late return fee will be applied.</div>
+            <div class="modal-footer">
+
+
+                <form asp-controller="Return" asp-action="ReturnCarOnPost" method="post" id="returnForm">
+
+                    <input name="bookingId" value="@Model.BookingId" id="bookingiD" hidden>
+                    <input name="spotId" value="" id="spotId" hidden>
+                    <input type="submit" value="Return" class="btn btn-danger" id="return" />
+
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </form>
+
+            </div>
+
+
+
+        </div>
+    </div>
+</div>
+@section Scripts
+
+    {
+
+    <script type="text/javascript">
+
+        var bookingId = @Model.BookingId;
+        var spotsArray = new Array();
+
+        @foreach (ParkingArea parkingArea in Model.parkingAreas)
+        {
+             <text>
+
+        var spot = new Map();
+        spot.set("Longitude", @parkingArea.Longitude);
+        spot.set("Latitude", @parkingArea.Latitude);
+        spot.set("id", @parkingArea.Id);
+        spotsArray.push(spot);
+            </text>
+        }
+
+
+
+    </script>
+    <script type="text/javascript" src="~/js/returnCar.js"></script>
+
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB254SclooE0FmuhmjUf6dS_BTrp3zr5Zw&callback=initMap"></script>
+    <style>
+
+        /* Ensure right map size */
+        #map {
+            height: 100%;
+        }
+
+        /* Made for big map */
+        #main-content {
+            padding-left: 0;
+            padding-right: 0;
+            margin-left: 0;
+            margin-right: 0;
+            height: 100%;
+            display: inline;
+            text-align: center;
+        }
+    </style>
+}

@@ -1,0 +1,164 @@
+﻿@model ConvenientCarShare.Views.Messages.IndexModel
+<link rel="stylesheet" href="~/css/messages.css" />
+
+@{
+    ViewData["Title"] = "My Messages";
+<div class="message-page-div">
+    <div class="row" style="margin-left:0px">
+    <h3 class="message-page-title">Messages</h3>
+    @if (Model.IsAdmin)
+    {
+        <form asp-controller="Messages" asp-action="Compose">
+            <button type="submit" class="btn btn-danger compose-button">Compose</button>
+        </form>
+
+    }
+
+        </div>
+    @if (Model.PageMessage != null)
+    {
+        <div class="alert alert-success" role="alert">
+            @Model.PageMessage
+        </div>
+
+    }
+
+    @if (Model.Errors.Any())
+    {
+        <div class="alert alert-danger" role="alert">
+            @foreach (string error in Model.Errors)
+            {
+                <p>- @error</p>
+
+            }
+        </div>
+
+    }
+
+    @if (Model.MessagesAndReplies.Any())
+    {
+        <DIV class="row">
+            <div class="col-md-6">
+                @foreach (var messageTree in Model.MessagesAndReplies)
+                {
+                    <div class="message-group">
+                        @{
+                            var firstMessage = messageTree.First();
+
+                            if (firstMessage.IsBroadcastMessage)
+                            {
+                                <h4>Broadcast from @firstMessage.Sender.Email</h4>
+                            }
+                            else if (firstMessage.Receiver == Model.CurrentUser && firstMessage.Sender == Model.CurrentUser)
+                            {
+                                <h4>Conversation with yourself</h4>
+                            }
+                            else if (firstMessage.Receiver != Model.CurrentUser)
+                            {
+                                if (firstMessage.Receiver != null)
+                                {
+                                    <h4>Conversation with @firstMessage.Receiver.Email</h4>
+
+                                }
+                            }
+                            else
+                            {
+                                <h4>Conversation with @firstMessage.Sender.Email</h4>
+                            }
+                        }
+                        <div class="col-sm-offset-1">
+                            @foreach (var message in messageTree)
+                            {
+                                var divClass = "message";
+
+                                if (!message.HasBeenRead)
+                                {
+                                    divClass = "message-unread";
+                                }
+                                <div class="@divClass">
+
+                                </div>
+
+                                <p class="message-title">@message.Title</p>
+                                <div class="message-text-div">
+                                    <p class="message-text">@message.Text</p>
+                                </div>
+
+                                @if (message.Sender == Model.CurrentUser)
+                                {
+                                    <p class="message-details">Sent: @message.SentDateTime from you</p>
+
+                                }
+                                else
+                                {
+                                    <p class="message-details">Sent: @message.SentDateTime from @message.Sender.Email</p>
+
+                                }
+
+
+                                @if (Model.CurrentUser != message.Sender && !message.IsBroadcastMessage)
+                                {
+                                    <form asp-controller="Messages" asp-action="Reply">
+                                        <input type="hidden" name="ReplyingTo" value="@message.ID" />
+                                        <button type="submit" class="btn-success reply-button">Reply</button>
+                                    </form>
+                                }
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        </DIV>
+    }
+    else
+    {
+        <p>No messages yet!</p>
+
+    }
+</div>
+    <br>
+}
+    <script>
+    function markMessages() {
+        @foreach(var messageTree in Model.MessagesAndReplies)
+        {
+            @foreach(var message in messageTree)
+            {
+                if(!message.HasBeenRead)
+                {
+                    <text>
+                        markAsRead(@message.ID);
+                    </text>
+
+                }
+
+            }
+
+
+
+        }
+
+    }
+
+    function markAsRead(Id) {
+        //console.log("trying to mark " + Id + " as read.")
+        $.ajax({
+            type: "POST",
+
+            url: 'Messages/MarkMessageAsRead',
+
+            data: { Id: Id },
+
+            datatype: "JSON",
+
+            //function that before send
+            //beforeSend: function () { $("#msg").html("logining"); },
+
+            success: function (data) {
+                //console.log("marked " + Id + " as foreach");
+            }
+        });
+    }
+
+    window.onload = markMessages;
+    </script>

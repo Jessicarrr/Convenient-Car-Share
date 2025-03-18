@@ -1,0 +1,198 @@
+﻿@model ConvenientCarShare.Views.Customer.ManageTrips
+@using ConvenientCarShare.Data
+@{
+    ViewData["Title"] = "ManageTrips";
+}
+
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB254SclooE0FmuhmjUf6dS_BTrp3zr5Zw&callback=initAddresses" type="text/javascript"></script>
+
+<script type="text/javascript" src="~/js/manageTrips.js"></script>
+
+
+<h2>ManageTrips</h2>
+<br>
+@Html.Raw(TempData["msg"])
+
+@if (Model.errors.Any())
+{
+    <div class="alert alert-danger" role="alert">
+        @foreach (string error in Model.errors)
+        {
+            <p>- @error</p>
+        }
+    </div>
+
+}
+
+@if (Model.messages.Any())
+{
+    <div class="alert alert-success" role="alert">
+        @foreach (string message in Model.messages)
+        {
+            <p>- @message</p>
+        }
+    </div>
+
+}
+
+
+@if (Model.bookings.Any())
+{
+    <div class="col-md-12">
+        <table class="return-car-table table">
+            <tr>
+                <th class="return-car-table-data">Car</th>
+                <th class="return-car-table-data">Booking Start</th>
+                <th class="return-car-table-data">Booking End</th>
+                <th class="return-car-table-data">Status</th>
+                <th class="return-car-table-data">Location</th>
+                <th class="return-car-table-data">Action</th>
+
+            </tr>
+
+            @foreach (var booking in Model.bookings)
+            {
+                var status = "";
+
+
+
+                <tr>
+                    <td class="return-car-table-data">@booking.Car.Brand @booking.Car.Model</td>
+                    <td class="return-car-table-data">@booking.StartDate</td>
+                    @if (booking.ExtensionDate.Ticks == 0)
+                    {
+                        <td class="return-car-table-data">@booking.EndDate</td>
+
+                    }
+                    else
+                    {
+
+                        <td class="return-car-table-data">@booking.ExtensionDate</td>
+
+                    }
+
+                    @if (booking.status == Constants.statusDriving && booking.ExtensionDate.Ticks == 0 &&
+                                    booking.EndDate.CompareTo(DateTime.Now) < 0)
+                    {
+
+                        <td class="return-car-table-data" style="color:red">Overdue</td>
+                        status = "Overdue";
+
+                    }
+                    else
+                    {
+
+                        <td class="return-car-table-data">@booking.status</td>
+                        status = booking.status;
+
+                    }
+
+                    <td class="return-car-table-data address" data-lat="@booking.Car.Latitude" data-long="@booking.Car.Longitude">
+                        @booking.Car.Latitude, @booking.Car.Longitude
+                    </td>
+                    <td class="return-car-table-data">
+
+
+                        @switch (status)
+                        {
+                            case "Driving":
+                                <a href="@Url.Action("ReturnCar", "Return", new { id = booking.Id })">Return </a>@:|
+                                <a href="#" onclick="showModal('@booking.Id')">Extend</a>
+                                break;
+                            case "Overdue":
+                                <a href="@Url.Action("ReturnCar", "Return", new { id = booking.Id })">Return </a>
+                                break;
+                            case "Booked":
+                                <a href="@Url.Action("ResendActivationCode", "Bookings", new { id = booking.Id })">Resend Code</a>
+                                @: |
+                                <a id="href-cancel" title="Click to cancel booking"
+                                   href="#" onclick="showCancelWindow('@booking.Id', '@booking.Car.Model', '@booking.Car.Brand', '@booking.StartDate', '@booking.EndDate', '@booking.Price');return false;">Cancel</a>
+                                break;
+                            case "Cancelled":
+                                break;
+                        }
+                    </td>
+                </tr>
+
+            }
+        </table>
+    </div>
+}
+else
+{
+    <p>You have not made any bookings yet.</p>
+
+}
+
+
+<br>
+
+<!-- Cancel Booking Modal -->
+<div class="modal cancel-modal" id="cancelBookingModal" tabindex="-1" role="dialog">
+    <form asp-controller="Bookings" asp-action="Cancel" method="post">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Cancel Booking</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p id="cancel-booking-body-line1"></p>
+                    <p id="cancel-booking-body-line2"></p>
+                </div>
+                <div class="modal-footer">
+                    <input name="cancelBookingId" value="" id="cancelBookingId" hidden>
+                    <button type="submit" class="btn btn-danger">Cancel Booking</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Manage Modal -->
+<div class="modal manage-modal" id="manageModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content" style="text-align:center;">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="myModalLabel">Extend booking</h4>
+            </div>
+            <div class="modal-body">
+
+                <p>Please select how long you want to extend the booking</p>
+                <div class="col-centered">
+                    <select class="form-control" id="extendTime" onchange="getStatus()">
+                        <option value=0>Select</option>
+                        <option value=1>1 hour</option>
+                        <option value=2>2 hours</option>
+                    </select>
+                </div>
+                <br><br>
+                <p style="color:red;" id="status"></p>
+
+                <div class="alert alert-warning" role="alert">
+                    Note: Extention price is based on your car price. Will be paid from your account after extended.
+                </div>
+            </div>
+
+            <div class="modal-footer" style="text-align:center;">
+
+                <form asp-controller="Extend" asp-action="ExtendBookingOnPost" method="post" id="extend-form">
+
+                    <input name="bookingId" value="" id="bookingId" hidden>
+                    <input name="extendHour" value="" id="extendHour" hidden>
+
+                    <button type="submit" class="btn btn-primary" id="extend-btn" disabled>Extend</button>
+
+                </form>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+

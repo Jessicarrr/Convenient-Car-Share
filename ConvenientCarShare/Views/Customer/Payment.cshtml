@@ -1,0 +1,90 @@
+﻿@model ConvenientCarShare.Views.Customer.PaymentModel
+@{
+    ViewData["Title"] = "Payment";
+}
+
+<h1>Payment</h1>
+<hr style="margin-bottom: 50px;" />
+<div class="col-md-6">
+    <h3>Your Booking</h3>
+    <h4>Total Price</h4>
+    <p>$@Model.Price</p>
+
+    <h4>Booking period</h4>
+
+    @{
+        var hoursDifference = Model.EndDate.Subtract(Model.StartDate).TotalHours;
+    }
+    <p>@Model.StartDate - @Model.EndDate</p>
+    <p>(@hoursDifference total hours)</p>
+</div>
+
+<div class="col-md-6">
+
+    <h3>Pay</h3>
+    <form method="post" asp-controller="Bookings" asp-action="SubmitPayment">
+
+        @if (Model.SubmissionErrors.Count() > 0)
+        {
+            <div class="alert alert-danger">
+                @foreach (string error in Model.SubmissionErrors)
+                {
+                    <p>- @error</p>
+
+                }
+            </div>
+
+        }
+
+        <input type="hidden" name="CarId" value="@Model.CarId" />
+        <input type="hidden" name="Price" value="@Model.Price" />
+        <input type="hidden" name="StartDate" value="@Model.StartDate" />
+        <input type="hidden" name="EndDate" value="@Model.EndDate" />
+
+        <div class="form-group">
+            <label for="FullName">Full Name</label>
+            <input type="text" class="form-control" name="FullName" value="@Model.FullName">
+        </div>
+
+        <div class="form-group">
+            <label for="CreditCardNumber">Card Number</label>
+            <input type="text" class="form-control" name="CreditCardNumber" value="@Model.CreditCardNumber">
+        </div>
+
+        <div class="form-group">
+            <label for="cvv">CVV</label>
+            <input type="text" class="form-control" name="cvv" value="@Model.CVV">
+        </div>
+
+        <div class="form-group">
+            <label>Expiration Date</label>
+            <input asp-for="ExpiryDate" type="month" class="form-control" />
+
+        </div>
+
+        <h4 class="label-total-price">Total Price:</h4>
+        <p id="total-price" class="display-total-price">$@Model.Price</p>
+
+        <div class="form-group">
+            <button type="submit" class="btn btn-default">Pay</button>
+        </div>
+    </form>
+</div>
+<div class="modal" tabindex="-1" role="dialog" id="modal">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Sucessfully Booked!</h5>
+            </div>
+            <div class="modal-body">
+                <p>Your activication code: @Model.activicationCode</p>
+                <p>The activication code for the car is sent to your email.</p>
+                <p>Or you can click the email link to start to use the car.</p>
+            </div>
+            <div class="modal-footer">
+                <a asp-controller="Customer" asp-action="Index" class="btn btn-primary">Finish</a>
+            </div>
+        </div>
+    </div>
+</div>
+@Html.Raw(TempData["msg"])

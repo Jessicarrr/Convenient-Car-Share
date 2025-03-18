@@ -1,0 +1,37 @@
+﻿@model ConvenientCarShare.Models.ParkingArea
+
+@{
+    ViewData["Title"] = "Manage Cars";
+    Layout = "~/Views/Manage/_Layout.cshtml";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>ParkingArea</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Latitude)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Latitude)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Longitude)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Longitude)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.MaximumCars)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.MaximumCars)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>
