@@ -32,17 +32,24 @@ namespace ConvenientCarShare
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
-            services.AddTransient<IEmailSender, EmailSender>(i =>
-                            new EmailSender(
-                                Configuration["EmailSender:Host"],
-                                Configuration.GetValue<int>("EmailSender:Port"),
-                                Configuration.GetValue<bool>("EmailSender:EnableSSL"),
-                                Configuration["EmailSender:UserName"],
-                                Configuration["EmailSender:Password"]
-                            )
-                        );
-            
+            // Bind and validate EmailSender options
+            services.AddOptions<EmailSenderOptions>()
+                .Bind(Configuration.GetSection("EmailSender"))
+                .Validate(options =>
+                {
+                    return !string.IsNullOrWhiteSpace(options.UserName) &&
+                           !string.IsNullOrWhiteSpace(options.Password);
+                }, "\n~~Critical Error: EmailSender options UserName and Password must be provided.~~\n" 
+                + "You must supply these via environmental variables in your operating system.\n"
+                + "Specifically, name them 'EmailSender__UserName' and 'EmailSender__Password'.\n")
+                .ValidateOnStart();
 
+            // email sending service
+            services.AddTransient<IEmailSender, EmailSender>();
+
+            // email validation (check if env variables are set)
+            // Force options validation on startup by adding the hosted service:
+            services.AddHostedService<OptionsValidationHostedService>();
 
             services.AddMvc(); // .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 

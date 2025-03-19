@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.Extensions.Options;
 using System.Net;
 using System.Net.Mail;
 using System.Threading.Tasks;
@@ -7,33 +8,23 @@ namespace ConvenientCarShare.Services
 {
     public class EmailSender : IEmailSender
     {
-        // Our private configuration variables
-        private string host;
-        private int port;
-        private bool enableSSL;
-        private string userName;
-        private string password;
+        private readonly EmailSenderOptions _options;
 
-        // Get our parameterized configuration
-        public EmailSender(string host, int port, bool enableSSL, string userName, string password)
+        public EmailSender(IOptions<EmailSenderOptions> options)
         {
-            this.host = host;
-            this.port = port;
-            this.enableSSL = enableSSL;
-            this.userName = userName;
-            this.password = password;
+            _options = options.Value;
         }
 
         // Use our configuration to send the email by using SmtpClient
         public Task SendEmailAsync(string email, string subject, string htmlMessage)
         {
-            var client = new SmtpClient(host, port)
+            var client = new SmtpClient(_options.Host, _options.Port)
             {
-                Credentials = new NetworkCredential(userName, password),
-                EnableSsl = enableSSL
+                Credentials = new NetworkCredential(_options.UserName, _options.Password),
+                EnableSsl = _options.EnableSSL
             };
             return client.SendMailAsync(
-                new MailMessage(userName, email, subject, htmlMessage) { IsBodyHtml = true }
+                new MailMessage(_options.UserName, email, subject, htmlMessage) { IsBodyHtml = true }
             );
         }
     }
