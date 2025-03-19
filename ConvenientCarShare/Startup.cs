@@ -44,7 +44,7 @@ namespace ConvenientCarShare
             
 
 
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+            services.AddMvc(); // .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
             services.AddResponseCompression();
             services.AddResponseCaching();
@@ -93,14 +93,20 @@ namespace ConvenientCarShare
 
 
             });
-            app.UseAuthentication();
 
-            app.UseMvc(routes =>
+            app.UseRouting();
+            app.UseAuthentication();
+            app.UseAuthorization();
+
+            app.UseEndpoints(endpoints =>
             {
-                routes.MapRoute(
-                    name: "default",
-                    template: "{controller=Customer}/{action=Index}/{id?}");
+                endpoints.MapControllerRoute(
+                    "default",
+                    "{controller=Customer}/{action=Index}/{id?}"
+                );
+                endpoints.MapRazorPages();
             });
+
         }
     }
 }
