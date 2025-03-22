@@ -22,6 +22,6 @@ namespace ConvenientCarShare.Views.Customer
 
         public string FullName = "";
         public string CVV = "";
-        public string activicationCode = "";
+        public string ActivationCode = "";
     }
 }

@@ -44,7 +44,7 @@ namespace ConvenientCarShare.Controllers
             {
                 var noReturnBookings = await _context.Bookings
                 .Where(booking => booking.User == currentUser)
-                .Where(booking => booking.status == Constants.statusDriving || (booking.StartDate.Ticks <= now.Ticks && booking.status == Constants.statusBooked))
+                .Where(booking => booking.Status == Constants.statusDriving || (booking.StartDate.Ticks <= now.Ticks && booking.Status == Constants.statusBooked))
                 .ToArrayAsync();
 
                 if (noReturnBookings.Any())
@@ -151,7 +151,7 @@ namespace ConvenientCarShare.Controllers
         public async Task<JsonResult> GetCarsNotBookedDuring(DateTime startDate, DateTime endDate)
         {
             var bookings = await _context.Bookings
-                .Where(b => b.status != Constants.statusCancelled)
+                .Where(b => b.Status != Constants.statusCancelled)
                 .ToArrayAsync();
             // subtract a certain amount of hours from the start date, so the date range is bigger.
             // we do this because we don't want people to book cars immediately after another booking.
@@ -193,7 +193,7 @@ namespace ConvenientCarShare.Controllers
             {
                 if (booking.StartDate.Ticks < EndDate.Ticks && booking.EndDate.Ticks > StartDate.Ticks)
                 {
-                    if (booking.status == Constants.statusCancelled)
+                    if (booking.Status == Constants.statusCancelled)
                     {
 
                         continue;
@@ -234,7 +234,7 @@ namespace ConvenientCarShare.Controllers
                 var end = DateTime.Now.AddHours(2);
 
                 var followingBookings = await _context.Bookings
-                    .Where(booking => booking.status != Constants.statusCancelled)
+                    .Where(booking => booking.Status != Constants.statusCancelled)
                     .Where(booking => start.Ticks < booking.EndDate.Ticks && end.Ticks > booking.StartDate.Ticks)
                     .Where(booking => booking.Car.Id == car.Id)
                     .ToArrayAsync();

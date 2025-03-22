@@ -71,7 +71,7 @@
 
                     }
 
-                    @if (booking.status == Constants.statusDriving && booking.ExtensionDate.Ticks == 0 &&
+                    @if (booking.Status == Constants.statusDriving && booking.ExtensionDate.Ticks == 0 &&
                                     booking.EndDate.CompareTo(DateTime.Now) < 0)
                     {
 
@@ -82,8 +82,8 @@
                     else
                     {
 
-                        <td class="return-car-table-data">@booking.status</td>
-                        status = booking.status;
+                        <td class="return-car-table-data">@booking.Status</td>
+                        status = booking.Status;
 
                     }
 

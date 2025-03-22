@@ -44,7 +44,7 @@ namespace ConvenientCarShare.Controllers.Customer
             if (currBooking.ExtensionDate.Ticks != 0)
             {
                 followingBookings = await _context.Bookings
-               .Where(booking => booking.status == Constants.statusBooked && booking.StartDate.Ticks <= currBooking.ExtensionDate.AddHours(extendTime).Ticks
+               .Where(booking => booking.Status == Constants.statusBooked && booking.StartDate.Ticks <= currBooking.ExtensionDate.AddHours(extendTime).Ticks
                )
                .Where(booking => booking.Car.Id == currBooking.Car.Id)
                .ToArrayAsync();
@@ -53,7 +53,7 @@ namespace ConvenientCarShare.Controllers.Customer
             else
             {
                 followingBookings = await _context.Bookings
-               .Where(booking => booking.status == Constants.statusBooked && booking.StartDate.Ticks <= currBooking.EndDate.AddHours(extendTime).Ticks
+               .Where(booking => booking.Status == Constants.statusBooked && booking.StartDate.Ticks <= currBooking.EndDate.AddHours(extendTime).Ticks
                )
                .Where(booking => booking.Car.Id == currBooking.Car.Id)
                .ToArrayAsync();

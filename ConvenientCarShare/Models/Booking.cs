@@ -24,9 +24,9 @@ namespace ConvenientCarShare.Models
 
         public decimal ExtensionPrice { get; set; }
 
-        public string activicationCode { get; set; }
+        public string ActivationCode { get; set; }
         
-        public string status { get; set; }
+        public string Status { get; set; }
 
         public DateTime ReturnDate { get; set; }
 

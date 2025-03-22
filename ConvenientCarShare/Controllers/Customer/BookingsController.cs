@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -43,7 +45,7 @@ namespace ConvenientCarShare.Controllers
             var currentUser = await _userManager.GetUserAsync(HttpContext.User);
 
             var allBookings = await _context.Bookings
-                    .Where(b => b.User == currentUser)
+                    .Where(b => b.User.Id == currentUser.Id)
                     .Include(b => b.Car)
                     .ToArrayAsync();
 
@@ -57,7 +59,7 @@ namespace ConvenientCarShare.Controllers
             {
                 manageTripsModel.errors.Add("An unknown error occurred when trying to cancel the booking. Sorry about that.");
             }
-            else if (booking.status != Constants.statusBooked)
+            else if (booking.Status != Constants.statusBooked)
             {
                 manageTripsModel.errors.Add("You can only cancel a booking with the status " + Constants.statusBooked);
             }
@@ -67,8 +69,8 @@ namespace ConvenientCarShare.Controllers
                 return View("~/Views/Customer/ManageTrips.cshtml", manageTripsModel);
             }
 
-            booking.status = Constants.statusCancelled;
-            _context.SaveChanges();
+            booking.Status = Constants.statusCancelled;
+            await _context.SaveChangesAsync();
             manageTripsModel.messages.Add("Successfully cancelled booking. You have been refunded the full amount. ($" + booking.Price + ")");
             return View("~/Views/Customer/ManageTrips.cshtml", manageTripsModel);
         }
@@ -92,23 +94,23 @@ namespace ConvenientCarShare.Controllers
 
             };
 
-            if (booking == null || booking.User != currentUser)
+            if (booking == null || booking.User.Id != currentUser.Id)
             {
                 manageTripsModel.errors.Add("Something went wrong with re-sending the email. The booking did not exist.");
                 return View("~/Views/Customer/ManageTrips.cshtml", manageTripsModel);
             }
-            else if(booking.status != Constants.statusBooked)
+            else if(booking.Status != Constants.statusBooked)
             {
-                manageTripsModel.errors.Add("That booking cannot have an activation code applied anymore because it has a status of " + booking.status);
+                manageTripsModel.errors.Add("That booking cannot have an activation code applied anymore because it has a status of " + booking.Status);
                 return View("~/Views/Customer/ManageTrips.cshtml", manageTripsModel);
             }
 
-            var callbackUrl = Url.Action("OnGet", "StartBooking", values: new { booking.activicationCode }, protocol: Request.Scheme);
+            var callbackUrl = Url.Action("OnGet", "StartBooking", values: new { booking.ActivationCode }, protocol: Request.Scheme);
 
             await _emailSender.SendEmailAsync(
                 booking.User.Email,
                 "Activication Code",
-                $"Your activication code is {booking.activicationCode}. Or Click <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'> here</a> to start your booking and unlock the car.");
+                $"Your activication code is {booking.ActivationCode}. Or Click <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'> here</a> to start your booking and unlock the car.");
 
             manageTripsModel.messages.Add("A new activation code email has been sent.");
             return View("~/Views/Customer/ManageTrips.cshtml", manageTripsModel);
@@ -213,9 +215,6 @@ namespace ConvenientCarShare.Controllers
                 StartDate = StartDate,
                 EndDate = EndDate,
                 Price = ActualPrice,
-                CreditCardNumber = user.CreditCardNo,
-                CVV = user.CVV,
-                ExpiryDate = user.ExpiryDate,
                 FullName = user.Name
                 
             };
@@ -290,22 +289,18 @@ namespace ConvenientCarShare.Controllers
                 return RedirectToAction("Index", "Customer");
             }
 
-            user.CVV = cvv;
-            user.CreditCardNo = CreditCardNumber;
-            user.ExpiryDate = ExpiryDate;
             await _userManager.UpdateAsync(user);
 
-            Booking booking = CreateBookingAsync(CarId, StartDate, EndDate, ActualPrice)
-                .Result;
-            ViewModel.activicationCode = booking.activicationCode;
+            Booking booking = await CreateBookingAsync(CarId, StartDate, EndDate, ActualPrice);
+            ViewModel.ActivationCode = booking.ActivationCode;
             TempData["msg"] = "<script>$('#modal').modal();</script>";
 
-            var callbackUrl = Url.Action("OnGet","StartBooking",values:new { booking.activicationCode},protocol:Request.Scheme);
+            var callbackUrl = Url.Action("OnGet","StartBooking",values:new { booking.ActivationCode },protocol:Request.Scheme);
 
             await _emailSender.SendEmailAsync(
                 booking.User.Email,
                 "Activication Code",
-                $"Your activication code is {booking.activicationCode}. Or Click <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'> here</a> to start your booking and unlock the car.");
+                $"Your activication code is {booking.ActivationCode}. Or Click <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'> here</a> to start your booking and unlock the car.");
 
             return View("/Views/Customer/Payment.cshtml", ViewModel);
         }
@@ -313,7 +308,7 @@ namespace ConvenientCarShare.Controllers
         private async Task<Booking> CreateBookingAsync(int CarId, DateTime StartDate, DateTime EndDate, decimal Price)
         {
 
-            var code = rndkey(8);
+            var code = GetRandomKey(8);
 
             Car car = _context.Cars.Where(c => c.Id == CarId).First();
             ApplicationUser CurrentUser = await _userManager.GetUserAsync(User);
@@ -325,8 +320,8 @@ namespace ConvenientCarShare.Controllers
                 Price = Price,
                 StartDate = StartDate,
                 EndDate = EndDate,
-                activicationCode = code,
-                status = Constants.statusBooked
+                ActivationCode = code,
+                Status = Constants.statusBooked
             };
 
             _context.Bookings.Add(booking);
@@ -365,30 +360,13 @@ namespace ConvenientCarShare.Controllers
         private bool IsCreditCardNumberValid(string CreditCardNumber)
         {
             /*
-             * I've done a lot of reading online, and I've dicovered the only 100% way
-             * to check if a credit card is valid, is if we try to make a payment with the
-             * given credit card. If the payment does not go through, then something was invalid.
+             * The best way to verify credit card numbers is to send them to
+             * the payment provider and check if the payment is successful.
              * 
-             * This IsCreditCardNumberValid method is good for returning an error message 
-             * ("your credit card number is invalid"), but just because this method thinks the cc number
-             * is invalid, doesn't mean it's actually invalid.
+             * If the payment was not successful, this method can be run to give
+             * some potential context as to why.
              * 
-             * This method isn't perfect and should not be relied on for checking if a cc
-             * number is valid. But it is good for returning an error message if the payment doesn't
-             * go through.
-             * 
-             * Our logic should be like this:
-             * 
-             * 1. Check if everything else is valid (expiry, price, etc.)
-             * 2. Try to make a payment
-             * 3. If payment is successful, things are all good.
-             * 4. If payment is unsuccessful, call this method.
-             * 5. If this method determines the cc number is invalid, then display an error message
-             *    saying so.
-             * 6. If this method thinks the cc number is valid, I'm not sure what to do.
-             * 
-             * Method of credit card checking can be found here:
-             * https://www.codeproject.com/Articles/36377/Validating-Credit-Card-Numbers
+             * If no reason could be found, we could return an unknown error.
              */
 
             var WhitespaceRegex = @"\s+";
@@ -432,23 +410,9 @@ namespace ConvenientCarShare.Controllers
 
         private bool IsCreditCardExpired(DateTime ExpiryDate)
         {
-            try
-            {
-
-                if (ExpiryDate.AddMonths(1).CompareTo(DateTime.Now) <= 0)
-                {
-                    return false;           
-                        
-                 }
-
-                return false;
-            }
-            catch(ArgumentOutOfRangeException e)
-            {
-                return false;
-            }
+            // Assuming ExpiryDate is the last valid month.
+            return DateTime.Now > ExpiryDate;
         }
-
 
         private bool IsCvvValid(string cvv)
         {
@@ -508,26 +472,26 @@ namespace ConvenientCarShare.Controllers
             return _context.Cars.Where(car => car.Id == CarId).Any();
         }
 
-        private string rndkey(int keylen)
+        private string GetRandomKey(int keylen)
         {
             string randomChars = "abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIKJLMNOPQRSTUVWXYZ";
-            string password = string.Empty;
-            int randomNum;
+            StringBuilder password = new StringBuilder(keylen);
+            int seed = GetRandomSeed();
+            Random random = new Random(seed);
 
             for (int i = 0; i < keylen; i++)
             {
-                Random random = new Random(GetRandomSeed());
-                randomNum = random.Next(randomChars.Length);
-                password += randomChars[randomNum];
+                int randomNum = random.Next(randomChars.Length);
+                password.Append(randomChars[randomNum]);
             }
-            return password;
+            return password.ToString();
         }
+
 
         static int GetRandomSeed()
         {
             byte[] bytes = new byte[4];
-            System.Security.Cryptography.RNGCryptoServiceProvider rng = new System.Security.Cryptography.RNGCryptoServiceProvider();
-            rng.GetBytes(bytes); 
+            bytes = RandomNumberGenerator.GetBytes(4);
             return BitConverter.ToInt32(bytes, 0);
         }
     }

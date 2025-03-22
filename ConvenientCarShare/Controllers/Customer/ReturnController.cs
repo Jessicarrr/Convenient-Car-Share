@@ -127,7 +127,7 @@ namespace ConvenientCarShare.Controllers.Customer
 
             booking.ReturnDate = DateTime.Now;
             booking.ReturnArea = spot;
-            booking.status = Constants.statusFinished;
+            booking.Status = Constants.statusFinished;
 
             booking.Car.CurrentlyParkedAt = spot;
             booking.Car.Latitude = spot.Latitude;
