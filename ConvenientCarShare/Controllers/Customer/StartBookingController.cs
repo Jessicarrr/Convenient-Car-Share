@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using ConvenientCarShare.Models;
 using Microsoft.AspNetCore.Mvc;
-using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using ConvenientCarShare.Data;
 
@@ -21,58 +20,67 @@ namespace ConvenientCarShare.Controllers.Customer
 
         }
 
-        public async Task<String> OnGet(string activicationCode)
+        [HttpGet]
+        public async Task<IActionResult> OnGet(string ActivationCode)
         {
-            if (activicationCode == null)
+            if (string.IsNullOrEmpty(ActivationCode))
             {
-                return "A code must be supplied for starting the booking.";
+                return BadRequest("A code must be supplied for starting the booking.");
             }
-            else
+
+            var currBooking = await _context.Bookings
+            .Where(booking => booking.ActivationCode == ActivationCode)
+            .Include(booking => booking.Car).FirstOrDefaultAsync();
+
+            if (currBooking == null)
             {
-                var currBooking = await _context.Bookings
-                .Where(booking => booking.activicationCode == activicationCode)
-                .Include(booking => booking.Car).FirstOrDefaultAsync();
+                return NotFound("Something went wrong.");
+            }
 
-                if (currBooking.StartDate.CompareTo(DateTime.Now) > 0 || currBooking.EndDate.CompareTo(DateTime.Now) < 0)
-                {
-                    return "Current time is not in the booking period!!";
+            if (currBooking.StartDate.CompareTo(DateTime.Now) > 0 || currBooking.EndDate.CompareTo(DateTime.Now) < 0)
+            {
+                return BadRequest("Current time is not in the booking period!");
 
-                }
+            }
 
-                if (currBooking.ReturnArea != null)
-                {
-                    return "The booking has already finished!";
+            if (currBooking.ReturnArea != null)
+            {
+                return BadRequest("The booking has already finished!");
 
-                }
+            }
 
-                if (currBooking.status == Constants.statusCancelled)
-                {
-
-                    return "The booking has already cancelled!";
-                }
+            if (currBooking.Status == Constants.statusCancelled)
+            {
+                return BadRequest("The booking has already cancelled!");
+            }
 
 
-                var currCar = await _context.Cars
-                .Where(car => car.Id == currBooking.Car.Id).Include(car => car.CurrentlyParkedAt).FirstOrDefaultAsync();
+            var currCar = await _context.Cars
+            .Where(car => car.Id == currBooking.Car.Id).Include(car => car.CurrentlyParkedAt).FirstOrDefaultAsync();
 
-                if (currCar.CurrentlyParkedAt == null)
-                {
-                    return "The car is already unlocked!";
-                }
+            if (currCar.CurrentlyParkedAt == null)
+            {
+                return BadRequest("The car is already unlocked!");
+            }
 
 
 
-                currCar.CurrentlyParkedAt = null;
-                currBooking.status = Constants.statusDriving;
+            currCar.CurrentlyParkedAt = null;
+            currBooking.Status = Constants.statusDriving;
 
+            try
+            {
                 _context.Update(currBooking);
                 _context.Update(currCar);
-                
-
                 await _context.SaveChangesAsync();
-                return ("The car is unlocked! Enjoy!");
-
             }
+            catch(Exception ex)
+            {
+                return StatusCode(500, "An error occurred while unlocking the car.");
+            }
+                
+            return Ok("The car is unlocked! Enjoy!");
+
         }
     }
 }
