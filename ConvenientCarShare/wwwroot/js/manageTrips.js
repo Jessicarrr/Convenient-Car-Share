@@ -1,5 +1,4 @@
-﻿
-
+﻿/*jshint esversion: 6 */ 
 
 function showModal(bookingId) {
 
@@ -33,24 +32,30 @@ function getStatus() {
 
         data: { bookingId: bookingId, extendTime: $("#extendTime").val() },
 
-        datatype: "JSON",
+        dataType: "JSON",
 
-        beforeSend: function () { $("#status").html("logining status"); },
+        //beforeSend: function () { $("#status").html("logining status"); },
 
         success: function (data) {
-            $("#status").html("*" + data);
+            //alert(data);
+            //console.log("Data: " + data);
+            $("#booking-price").html(`Total price: $${data.price}`);
+            $("#status").html(data.status);
 
-            switch (data) {
-
-                case "Not Available":
-                    $("#extend-btn").prop("disabled", true);
-                    break;
-
-                case "Available":
-                    $("#extend-btn").prop("disabled", false);
-                    break;
-
+            if (data.status === "Not Available") {
+                $("#extend-btn").prop("disabled", true);
             }
+            else if (data.status === "Available") {
+                $("#extend-btn").prop("disabled", false);
+            }
+            else {
+                $("#status").html("Something went wrong when fetching booking extension data.");
+                $("#extend-btn").prop("disabled", true);
+            }
+        },
+        error: function (error) {
+            console.error(error);
+            $("#extend-btn").prop("disabled", true);
         },
     });
 

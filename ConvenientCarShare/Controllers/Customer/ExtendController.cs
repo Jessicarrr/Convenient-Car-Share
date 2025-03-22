@@ -58,17 +58,16 @@ namespace ConvenientCarShare.Controllers.Customer
                .Where(booking => booking.Car.Id == currBooking.Car.Id)
                .ToArrayAsync();
             }
-            
 
-            if (followingBookings.Any())
+            var price = currBooking.Car.Price * extendTime;
+
+            if (followingBookings.Length != 0)
             {
-
-                return Json("Not Available");
-
+                return Json(new { status = "Not Available", price });
             }
             else {
 
-                return Json("Available");
+                return Json(new { status = "Available", price });
 
             }
 
