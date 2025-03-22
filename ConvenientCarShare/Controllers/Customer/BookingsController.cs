@@ -109,7 +109,7 @@ namespace ConvenientCarShare.Controllers
 
             await _emailSender.SendEmailAsync(
                 booking.User.Email,
-                "Activication Code",
+                "Activation Code",
                 $"Your activication code is {booking.ActivationCode}. Or Click <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'> here</a> to start your booking and unlock the car.");
 
             manageTripsModel.messages.Add("A new activation code email has been sent.");
