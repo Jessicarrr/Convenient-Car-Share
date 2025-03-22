@@ -94,7 +94,7 @@ namespace ConvenientCarShare.Areas.Identity.Pages.Account
                 }
                 else
                 {
-                    ModelState.AddModelError(string.Empty, "Your email or password is Wrong. Or you did not confirm your email address");
+                    ModelState.AddModelError(string.Empty, "Invalid login.");
                     return Page();
                 }
             }
