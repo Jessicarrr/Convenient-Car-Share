@@ -24,7 +24,7 @@ namespace ConvenientCarShare
                 {
                     //Data.SeedAdminData.InitializeAsync(services).Wait();
                     Data.SeedMessageData.InitializeAsync(services).Wait();
-                    Data.SeedCarAndParkingData.InitializeAsync(services).Wait();
+                    Data.SeedCarAndParkingData.Initialize(services);
                 }
                 catch (Exception ex)
                 {
