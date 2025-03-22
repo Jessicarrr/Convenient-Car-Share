@@ -10,7 +10,7 @@ namespace ConvenientCarShare.Data
 {
     public class SeedCarAndParkingData
     {
-        public static Task InitializeAsync(
+        public static Task Initialize(
             IServiceProvider services)
         {
             ParkingArea[] spots =
