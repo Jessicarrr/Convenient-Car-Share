@@ -1,0 +1,54 @@
+﻿@page
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Disclaimer</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+        }
+        body {
+            background: url('/images/melbourne.jpg') no-repeat center center fixed;
+            background-size: cover;
+        }
+        .disclaimer-container {
+            background: rgba(0, 0, 0, 0.9);
+            border-radius: 8px;
+            padding: 2rem;
+            max-width: 600px;
+            width: 90%;
+            text-align: center;
+            
+        }
+        .disclaimer-container > p, h1 {
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="d-flex align-items-center justify-content-center h-100">
+        <div class="disclaimer-container">
+            <h1 class="mb-4">Disclaimer</h1>
+            <p>
+                This website is a demo project developed as part of a university capstone.
+                No sensitive data is stored—registration only records your email, name, date of birth,
+                and whether or not you've provided a licence number (your licence number is also not verified).
+                Payment information is not stored, and all payments are simulated. Please refrain from using
+                your real payment details.
+            </p>
+            <form method="get" action="/Customer/Index">
+                <button type="submit" class="btn btn-primary mt-3">Acknowledge &amp; Continue</button>
+            </form>
+        </div>
+    </div>
+    
+</body>
+</html>

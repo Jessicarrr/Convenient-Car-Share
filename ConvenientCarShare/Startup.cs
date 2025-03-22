@@ -110,7 +110,7 @@ namespace ConvenientCarShare
             {
                 endpoints.MapControllerRoute(
                     "default",
-                    "{controller=Customer}/{action=Index}/{id?}"
+                    "{controller=Home}/{action=Index}/{id?}"
                 );
                 endpoints.MapRazorPages();
             });
