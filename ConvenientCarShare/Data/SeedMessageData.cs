@@ -139,7 +139,7 @@ namespace ConvenientCarShare.Data
             {
                 string thing = e.Message;
                 var thing2 = e.InnerException;
-                var thing3 = e.InnerException.ToString();
+                //var thing3 = e.InnerException.ToString();
             }
         }
     }
