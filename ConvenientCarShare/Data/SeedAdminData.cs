@@ -25,7 +25,7 @@ namespace ConvenientCarShare.Data
             var userStore = new UserStore<ApplicationUser>(context);
             var userManager = services
                 .GetRequiredService<UserManager<ApplicationUser>>();
-            await EnsureTestAdminAsync(userManager, userStore, context);
+            //await EnsureTestAdminAsync(userManager, userStore, context);
 
         }
         private static async Task EnsureRolesAsync(
