@@ -13,6 +13,8 @@ using Microsoft.Extensions.Logging;
 using ConvenientCarShare.Data;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
+using ConvenientCarShare.Attributes;
 
 namespace ConvenientCarShare.Areas.Identity.Pages.Account
 {
@@ -47,31 +49,17 @@ namespace ConvenientCarShare.Areas.Identity.Pages.Account
             [DataType(DataType.Text)]
             [Display(Name = "Full name")]
             public string Name { get; set; }
-
+            
             [Required]
             [Display(Name = "Birth Date")]
             [DataType(DataType.Date)]
+            [MinimumAge(18)]
             public DateTime DOB { get; set; }
 
-            [Required]
             [Display(Name = "Licence")]
-            [StringLength(10, MinimumLength = 8)]
+            [ValidLicenceNumber]
             [DataType(DataType.Text)]
             public string Licence { get; set; }
-
-            [CreditCard]
-            [Display(Name = "Credit Card")]
-            public string CreditCardNo { get; set; }
-
-            [DataType(DataType.Date)]
-            [DisplayFormat(DataFormatString = "{0:MM/yyyy}", ApplyFormatInEditMode = true)]
-            [Display(Name = "Expiry Date")]
-            public DateTime ExpiryDate { get; set; }
-
-            [Display(Name = "CVV")]
-            [DataType(DataType.Text)]
-            [StringLength(4, MinimumLength = 3)]
-            public string CVV { get; set; }
 
             [Required]
             [EmailAddress]
@@ -97,13 +85,17 @@ namespace ConvenientCarShare.Areas.Identity.Pages.Account
 
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
         {
-            if (Input.ExpiryDate.AddMonths(1).CompareTo(DateTime.Now) <= 0)
+            returnUrl = returnUrl ?? Url.Content("~/Customer/Index");
+
+            bool licenceValid = false;
+            if (!string.IsNullOrWhiteSpace(Input.Licence))
             {
-                ModelState.AddModelError(string.Empty, "The card is already expired!");
-                return Page();
+                if (ModelState.TryGetValue("Input.Licence", out var entry) && !entry.Errors.Any())
+                {
+                    licenceValid = true;
+                }
             }
 
-            returnUrl = returnUrl ?? Url.Content("~/");
             if (ModelState.IsValid)
             {
                 var user = new ApplicationUser {
@@ -111,21 +103,15 @@ namespace ConvenientCarShare.Areas.Identity.Pages.Account
                     Email = Input.Email,
                     Name = Input.Name,
                     DOB = Input.DOB,
-                    Licence = Input.Licence,
-                    CreditCardNo = Input.CreditCardNo,
-                    ExpiryDate = Input.ExpiryDate,
-                    CVV = Input.CVV
+                    IsLicenceProvided = licenceValid,
                 };
-
-                
-
 
                 try
                 {
                     var result = await _userManager.CreateAsync(user, Input.Password);
                     if (result.Succeeded)
                     {
-                        var roleResult = _userManager.AddToRoleAsync(user, Constants.CustomerRole).Result;
+                        var roleResult = await _userManager.AddToRoleAsync(user, Constants.CustomerRole);
                         _logger.LogInformation("User created a new account with password.");
 
                         var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
@@ -136,7 +122,7 @@ namespace ConvenientCarShare.Areas.Identity.Pages.Account
                             protocol: Request.Scheme);
 
                         await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
-                            $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+                            $"Please confirm your account by visiting the following link:<br/><br/>{HtmlEncoder.Default.Encode(callbackUrl)}");
 
                         await _signInManager.SignInAsync(user, isPersistent: false);
                         return LocalRedirect(returnUrl);

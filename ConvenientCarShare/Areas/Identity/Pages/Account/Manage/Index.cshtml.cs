@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 using ConvenientCarShare.Areas.Identity.Data;
+using ConvenientCarShare.Attributes;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -34,6 +35,8 @@ namespace ConvenientCarShare.Areas.Identity.Pages.Account.Manage
 
         public bool IsEmailConfirmed { get; set; }
 
+        public bool IsLicenceProvided { get; set; }
+
         [TempData]
         public string StatusMessage { get; set; }
 
@@ -50,27 +53,8 @@ namespace ConvenientCarShare.Areas.Identity.Pages.Account.Manage
             [Required]
             [Display(Name = "Birth Date")]
             [DataType(DataType.Date)]
+            [MinimumAge(18)]
             public DateTime DOB { get; set; }
-
-            [Required]
-            [DataType(DataType.Text)]
-            [StringLength(10, MinimumLength = 8)]
-            [Display(Name = "Licence")]
-            public string Licence { get; set; }
-
-            [CreditCard]
-            [Display(Name = "Credit Card")]
-            public string CreditCardNo { get; set; }
-
-            [DataType(DataType.Date)]
-            [DisplayFormat(DataFormatString = "{0:MM/yyyy}", ApplyFormatInEditMode = true)]
-            [Display(Name = "Expiry Date")]
-            public DateTime ExpiryDate { get; set; }
-
-            [Display(Name = "CVV")]
-            [DataType(DataType.Text)]
-            [StringLength(4, MinimumLength = 3)]
-            public string CVV { get; set; }
 
             [Required]
             [EmailAddress]
@@ -79,6 +63,11 @@ namespace ConvenientCarShare.Areas.Identity.Pages.Account.Manage
             [Phone]
             [Display(Name = "Phone number")]
             public string PhoneNumber { get; set; }
+
+            [DataType(DataType.Text)]
+            [ValidLicenceNumber]
+            [Display(Name = "Licence")]
+            public string Licence { get; set; }
         }
 
         public async Task<IActionResult> OnGetAsync()
@@ -101,14 +90,10 @@ namespace ConvenientCarShare.Areas.Identity.Pages.Account.Manage
                 PhoneNumber = phoneNumber,
                 Name = user.Name,
                 DOB = user.DOB,
-                Licence = user.Licence,
-                CreditCardNo = user.CreditCardNo,
-                ExpiryDate = user.ExpiryDate,
-                CVV = user.CVV
-
             };
 
             IsEmailConfirmed = await _userManager.IsEmailConfirmedAsync(user);
+            IsLicenceProvided = user.IsLicenceProvided;
 
             return Page();
         }
@@ -120,16 +105,10 @@ namespace ConvenientCarShare.Areas.Identity.Pages.Account.Manage
                 return Page();
             }
 
-            if (Input.ExpiryDate.AddMonths(1).CompareTo(DateTime.Now) <= 0)
-            {
-                ModelState.AddModelError(string.Empty ,"The card is already expired!");
-                return Page();
-            }
-
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
             {
-                return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+                return NotFound($"Could not find the given user.");
             }
 
             if (Input.Name != user.Name)
@@ -142,45 +121,28 @@ namespace ConvenientCarShare.Areas.Identity.Pages.Account.Manage
                 user.DOB = Input.DOB;
             }
 
-            if (Input.Licence != user.Licence)
-            {
-                user.Licence = Input.Licence;
-            }
-
             if (Input.DOB != user.DOB)
             {
                 user.DOB = Input.DOB;
             }
 
-            if (Input.CreditCardNo != user.CreditCardNo)
-            {
-                user.CreditCardNo = Input.CreditCardNo;
-            }
-
-            if (Input.ExpiryDate != user.ExpiryDate)
-            {
-                user.ExpiryDate = Input.ExpiryDate;
-            }
-
-            if (Input.CVV != user.CVV)
-            {
-                user.CVV = Input.CVV;
-            }
-
-
-
-
-
-
             var email = await _userManager.GetEmailAsync(user);
 
-            if (Input.Email != email)
+            if (Input.Email.ToLower() != email.ToLower())
             {
+                var otherUser = await _userManager.FindByEmailAsync(Input.Email);
+
+                if (otherUser != null)
+                {
+                    ModelState.AddModelError("Input.Email", "Email address is already taken.");
+                    return Page();
+                }
+
                 var setEmailResult = await _userManager.SetEmailAsync(user, Input.Email);
                 if (!setEmailResult.Succeeded)
                 {
                     var userId = await _userManager.GetUserIdAsync(user);
-                    throw new InvalidOperationException($"Unexpected error occurred setting email for user with ID '{userId}'.");
+                    throw new InvalidOperationException($"Unexpected error occurred when setting the email address.");
                 }
             }
 
@@ -191,16 +153,23 @@ namespace ConvenientCarShare.Areas.Identity.Pages.Account.Manage
                 if (!setPhoneResult.Succeeded)
                 {
                     var userId = await _userManager.GetUserIdAsync(user);
-                    throw new InvalidOperationException($"Unexpected error occurred setting phone number for user with ID '{userId}'.");
+                    throw new InvalidOperationException($"Unexpected error occurred setting phone number.");
                 }
             }
+
+            if (!string.IsNullOrWhiteSpace(Input.Licence))
+            {
+                if (ModelState.TryGetValue("Input.Licence", out var entry) && !entry.Errors.Any())
+                {
+                    user.IsLicenceProvided = true;
+                }
+            }
+
             try
             {
                 await _userManager.UpdateAsync(user);
-          
-
-            await _signInManager.RefreshSignInAsync(user);
-            StatusMessage = "Your profile has been updated";
+                await _signInManager.RefreshSignInAsync(user);
+                StatusMessage = "Your profile has been updated";
             }
 
             catch (DbUpdateException ex)
@@ -208,7 +177,7 @@ namespace ConvenientCarShare.Areas.Identity.Pages.Account.Manage
                 if (ex.InnerException is SqliteException se)
                     if (se.SqliteErrorCode == 19)
                     {
-                        ModelState.AddModelError(string.Empty, "License number is already taken.");
+                        ModelState.AddModelError("Input.Licence", "License number is already taken.");
                         return Page();
                     }
 
@@ -227,7 +196,7 @@ namespace ConvenientCarShare.Areas.Identity.Pages.Account.Manage
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
             {
-                return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+                return NotFound($"Unable to load the given user.");
             }
 
 
@@ -242,7 +211,7 @@ namespace ConvenientCarShare.Areas.Identity.Pages.Account.Manage
             await _emailSender.SendEmailAsync(
                 email,
                 "Confirm your email",
-                $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+                $"Please confirm your account by going to the following link: <br><br>{HtmlEncoder.Default.Encode(callbackUrl)}.");
 
             StatusMessage = "Verification email sent. Please check your email.";
             return RedirectToPage();

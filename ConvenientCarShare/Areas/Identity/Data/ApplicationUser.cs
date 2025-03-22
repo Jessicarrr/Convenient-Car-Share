@@ -18,16 +18,7 @@ namespace ConvenientCarShare.Areas.Identity.Data
         public DateTime DOB { get; set; }
 
         [PersonalData]
-        public string Licence { get; set; }
-
-        [PersonalData]
-        public String CreditCardNo { get; set; }
-
-        [PersonalData]
-        public DateTime ExpiryDate { get; set; }
-
-        [PersonalData]
-        public string CVV { get; set; }
+        public bool IsLicenceProvided { get; set; }
 
         [PersonalData]
         public Boolean Warnned { get; set; }
