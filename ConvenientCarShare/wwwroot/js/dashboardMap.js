@@ -439,7 +439,7 @@ function initMap() {
             draggable: false,
             icon: image,
             animation: google.maps.Animation.DROP,
-            title: "insert title here",
+            title: "Car park spot",
             infowindow: infoWindow
 
         });
