@@ -10,7 +10,7 @@ namespace ConvenientCarShare.Data
 {
     public class SeedCarAndParkingData
     {
-        public static async Task InitializeAsync(
+        public static Task InitializeAsync(
             IServiceProvider services)
         {
             ParkingArea[] spots =
@@ -40,10 +40,11 @@ namespace ConvenientCarShare.Data
             };
 
             var context = services.GetRequiredService<ApplicationDbContext>();
-                context.Database.EnsureCreated();
+            context.Database.EnsureCreated();
 
             EnsureParkingAreas(context, spots);
             EnsureCars(context, cars);
+            return Task.CompletedTask;
         }
 
         private static void EnsureCars(ApplicationDbContext context, Car[] cars)
