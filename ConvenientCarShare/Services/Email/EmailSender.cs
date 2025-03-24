@@ -4,7 +4,7 @@ using System.Net;
 using System.Net.Mail;
 using System.Threading.Tasks;
 
-namespace ConvenientCarShare.Services
+namespace ConvenientCarShare.Services.Email
 {
     public class EmailSender : IEmailSender
     {

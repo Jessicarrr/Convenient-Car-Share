@@ -1,4 +1,4 @@
-﻿namespace ConvenientCarShare.Services
+﻿namespace ConvenientCarShare.Services.Email
 {
     public class EmailSenderOptions
     {

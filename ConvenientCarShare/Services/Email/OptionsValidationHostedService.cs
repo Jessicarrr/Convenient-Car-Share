@@ -1,8 +1,8 @@
-﻿using ConvenientCarShare.Services;
-using Microsoft.Extensions.Hosting;
+﻿using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using System.Threading.Tasks;
 using System.Threading;
+using ConvenientCarShare.Services.Email;
 
 /// <summary>
 ///  This service is purely for checking if email services
