@@ -59,6 +59,7 @@ namespace ConvenientCarShare
             services.AddResponseCaching();
 
             services.AddScoped<IRegistrationService, RegistrationService>();
+            services.AddScoped<ICustomerService, CustomerService>();
             services.AddScoped<IBookingsService, BookingsService>();
 
 
