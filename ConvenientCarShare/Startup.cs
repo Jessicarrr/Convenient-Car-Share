@@ -1,5 +1,6 @@
 ﻿using ConvenientCarShare.Services;
 using ConvenientCarShare.Services.Email;
+using ConvenientCarShare.Services.Registration;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -57,6 +58,7 @@ namespace ConvenientCarShare
             services.AddResponseCompression();
             services.AddResponseCaching();
 
+            services.AddScoped<IRegistrationService, RegistrationService>();
             services.AddScoped<IBookingsService, BookingsService>();
 
 
