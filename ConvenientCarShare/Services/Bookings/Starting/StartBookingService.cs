@@ -78,7 +78,7 @@ namespace ConvenientCarShare.Services
                 return (false, 500, "An error occurred while unlocking the car.");
             }
 
-            return (true, 200, "The car is unlocked! Enjoy!");
+            return (true, 200, "Your car is unlocked! Enjoy! To view more details, feel free to visit the 'Manage Trips' page on our website.");
         }
     }
 }

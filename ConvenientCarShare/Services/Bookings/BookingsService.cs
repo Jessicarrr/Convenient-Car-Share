@@ -85,7 +85,7 @@ namespace ConvenientCarShare.Services
             await _emailSender.SendEmailAsync(
                 booking.User.Email,
                 "Activation Code",
-                $"Your activation code is {booking.ActivationCode}. Or click <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>here</a> to start your booking and unlock the car.");
+                $"You may click <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>here</a> to start your booking and unlock the car. Only do this when you're physically near the car and ready to start driving!");
 
             model.messages.Add("A new activation code email has been sent.");
             return model;
@@ -154,7 +154,7 @@ namespace ConvenientCarShare.Services
 
         public async Task<PaymentModel> SubmitPaymentAsync(
             int carId, decimal price, DateTime startDate, DateTime endDate,
-            string fullName, string creditCardNumber, string cvv, DateTime expiryDate,
+            string fullName, string creditCardNumber, string cvv, DateTime? expiryDate,
             ApplicationUser currentUser, IUrlHelper urlHelper, string scheme, ITempDataDictionary tempData)
         {
             bool isCcValid = IsCreditCardNumberValid(creditCardNumber);
@@ -251,6 +251,8 @@ namespace ConvenientCarShare.Services
 
         private bool IsCreditCardNumberValid(string creditCardNumber)
         {
+            if (String.IsNullOrEmpty(creditCardNumber)) return true;
+
             var whitespaceRegex = @"\s+";
             var digitsRegex = @"\d+";
             int checkSum = 0;
@@ -280,10 +282,17 @@ namespace ConvenientCarShare.Services
             return (checkSum % 10) == 0;
         }
 
-        private bool IsCreditCardExpired(DateTime expiryDate) => DateTime.Now > expiryDate;
+        private bool IsCreditCardExpired(DateTime? expiryDate)
+        {
+            if (expiryDate == null || expiryDate == DateTime.MinValue) { return false; }
+
+            return DateTime.Now > expiryDate;
+        } 
 
         private bool IsCvvValid(string cvv)
         {
+            if (String.IsNullOrEmpty(cvv)) return true;
+
             var whitespaceRegex = @"\s+";
             var digitsRegex = @"^\d+$";
             if (string.IsNullOrEmpty(cvv))
