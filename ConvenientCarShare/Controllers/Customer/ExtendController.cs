@@ -1,128 +1,65 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using ConvenientCarShare.Areas.Identity.Data;
 using ConvenientCarShare.Data;
 using ConvenientCarShare.Models;
+using ConvenientCarShare.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace ConvenientCarShare.Controllers.Customer
 {
     [Authorize]
     public class ExtendController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IExtendBookingService _extendBookingService;
         private readonly UserManager<ApplicationUser> _userManager;
 
-
-        public ExtendController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
+        public ExtendController(ApplicationDbContext context,
+                                UserManager<ApplicationUser> userManager,
+                                IExtendBookingService extendBookingService)
         {
-            _context = context;
             _userManager = userManager;
-
+            _extendBookingService = extendBookingService;
         }
-
 
         [HttpPost]
         public async Task<JsonResult> ExtendBooking(string bookingId, int extendTime)
         {
-            int bookingID = Int32.Parse(bookingId);
+            var error = Json(new { status = "Something went wrong, we're sorry about that.", price = -1.0 });
+            int bookingID = int.Parse(bookingId);
 
             var currentUser = await _userManager.GetUserAsync(HttpContext.User);
 
-            var currBooking = await _context.Bookings.Where(y => y.Id == bookingID)
-                .Include(x => x.Car)
-                .Include(x => x.ReturnArea)
-                .FirstOrDefaultAsync();
-
-            Booking[] followingBookings;
-
-            if (currBooking.ExtensionDate.Ticks != 0)
+            if (currentUser == null)
             {
-                followingBookings = await _context.Bookings
-               .Where(booking => booking.Status == Constants.statusBooked && booking.StartDate.Ticks <= currBooking.ExtensionDate.AddHours(extendTime).Ticks
-               )
-               .Where(booking => booking.Car.Id == currBooking.Car.Id)
-               .ToArrayAsync();
+                return error;
             }
 
-            else
+            bool userIsValid = await _extendBookingService.BookingBelongsToUser(bookingID, currentUser.Id);
+
+            if (!userIsValid)
             {
-                followingBookings = await _context.Bookings
-               .Where(booking => booking.Status == Constants.statusBooked && booking.StartDate.Ticks <= currBooking.EndDate.AddHours(extendTime).Ticks
-               )
-               .Where(booking => booking.Car.Id == currBooking.Car.Id)
-               .ToArrayAsync();
+                return error;
             }
 
-            var price = currBooking.Car.Price * extendTime;
-
-            if (followingBookings.Length != 0)
-            {
-                return Json(new { status = "Not Available", price });
-            }
-            else {
-
-                return Json(new { status = "Available", price });
-
-            }
-
+            var (status, price) = await _extendBookingService.CheckExtensionAvailabilityAsync(bookingID, extendTime);
+            return Json(new { status, price });
         }
-
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> ExtendBookingOnPost(int bookingId, int extendHour)
         {
+            var updatedBooking = await _extendBookingService.ExtendBookingAsync(bookingId, extendHour);
 
-            var booking = await _context.Bookings.Where(y => y.Id == bookingId)
-                .Include(x => x.Car)
-                .Include(x => x.ReturnArea)
-                .FirstOrDefaultAsync();
-
-            //case not extended yet
-            if (booking.ExtensionDate.Ticks == 0)
-            {
-                booking.ExtensionDate = booking.EndDate.AddHours(extendHour);
-                booking.ExtensionPrice = booking.Car.Price * extendHour;
-            }
-
-            else {
-
-                booking.ExtensionDate = booking.ExtensionDate.AddHours(extendHour);
-                booking.ExtensionPrice = booking.Car.Price + booking.Car.Price * extendHour;
-            }
-
-
-            _context.Update(booking);
-
-            await _context.SaveChangesAsync();
-
-            TempData["msg"] = "<div class='alert alert-success alert - dismissable' style='text-align:center;'>" +
-         "<button type = 'button' class='close' data-dismiss='alert'" +
-                    "aria-hidden='true'>" +
-                "&times;" +
-            "</button>" +
-                "Successfully extended! Price: $" + booking.Car.Price * extendHour + 
-        "</div>";
-
-            _context.Update(booking);
-
-            await _context.SaveChangesAsync();
+            TempData["msg"] = "<div class='alert alert-success alert-dismissable' style='text-align:center;'>" +
+                "<button type='button' class='close' data-dismiss='alert' aria-hidden='true'>&times;</button>" +
+                "Successfully extended! Price: $" + (updatedBooking.Car.Price * extendHour) +
+                "</div>";
 
             return RedirectToAction("ManageTrips", "Bookings");
-
         }
-
-
-
-
-
-
-
     }
 }

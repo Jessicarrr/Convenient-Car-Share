@@ -61,9 +61,7 @@ namespace ConvenientCarShare
             services.AddScoped<IRegistrationService, RegistrationService>();
             services.AddScoped<ICustomerService, CustomerService>();
             services.AddScoped<IBookingsService, BookingsService>();
-
-
-
+            services.AddScoped<IExtendBookingService, ExtendBookingService>();
             services.AddScoped<IReturnService, ReturnService>();
             services.AddScoped<IStartBookingService, StartBookingService>();
         }
