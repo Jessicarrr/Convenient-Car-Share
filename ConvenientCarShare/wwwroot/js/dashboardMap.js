@@ -471,33 +471,20 @@ function initMap() {
     geocoder = new google.maps.Geocoder;
     infowindowm = new google.maps.InfoWindow;
 
-    addInfoWindowAddresses();
+    addTitles();
 }
 
-function addInfoWindowAddresses() {
+function addTitles() {
     infoWindowList.forEach(function (infoWindow) {
-        var url = "https://maps.googleapis.com/maps/api/geocode/json?latlng=" + infoWindow.latitude + "," + infoWindow.longitude + "&key=AIzaSyDRKU2-51-N915Lv4-_YRRoiPOku5VDS08";
-
-        $.ajax({
-            type: "GET",
-
-            url: url,
-
-            success: function (data) {
-                //var text = data.text;
-                //var json = JSON.parse(text);
-                var address = data.results[0].formatted_address;
-
-                var newContent = infoWindow.content;
-                newContent = newContent.replace('<h5 id="iwAddressField"></h5>',
-                    '<h5 id="iwAddressField">' + address + '</h5>');
-
-                infoWindow.setContent(newContent);
-            },
-        });
+        var newContent = infoWindow.content.replace(
+            '<h5 id="iwAddressField"></h5>',
+            '<h5 id="iwAddressField">Car Park</h5>'
+        );
+        infoWindow.setContent(newContent);
     });
-    
 }
+
+
 
 function addInfoWindowToMarker(infoWindowList, infoWindow, contentString, map, marker) {
     infoWindowList.forEach(function (window) {
