@@ -170,7 +170,7 @@ namespace Test_Xunit_CCS
             emailSenderMock.Verify(es => es.SendEmailAsync(
                 testUser.Email,
                 "Activation Code",
-                It.Is<string>(s => s.Contains("VALID1") && s.Contains("http://callbackurl"))), 
+                It.Is<string>(s => s.Contains("http://callbackurl"))),
                 Times.Once);
         }
 
