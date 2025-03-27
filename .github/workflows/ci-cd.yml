@@ -68,7 +68,7 @@ jobs:
 
             if systemctl status Convenient-Car-Share-Service >/dev/null 2>&1; then
               echo "Found systemctl service for Convenient Car Share. Restarting it now..."
-              sudo systemctl restart Convenient-Car-Share-Service
+              sudo /usr/bin/systemctl restart Convenient-Car-Share-Service
             else
               echo "Tried to find systemctl service Convenient-Car-Share-Service but it did not exist."
               echo "This is OK - but consider setting up a service so that our app runs automatically."
