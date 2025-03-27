@@ -143,7 +143,7 @@ $(document).ready(function () {
 function geocodeLatLng(geocoder, map, infowindow) {
     var postcode = document.getElementById('postcode').value;
     var hello = new XMLHttpRequest();
-    var address = "https://maps.googleapis.com/maps/api/geocode/json?&address=" + postcode + "&components=country:AU&key=AIzaSyB254SclooE0FmuhmjUf6dS_BTrp3zr5Zw";
+    var address = "https://maps.googleapis.com/maps/api/geocode/json?&address=" + postcode + "&components=country:AU&key=AIzaSyDRKU2-51-N915Lv4-_YRRoiPOku5VDS08w";
     hello.open("GET", address, true);
     hello.send(null);
     var p = JSON.parse(hello.response);
@@ -388,11 +388,6 @@ function initMap() {
         var totalCar = 0;
 
         carList.forEach(function (car) {
-            /*var carAddress = new XMLHttpRequest();
-            var lagtlngAPI = "https://maps.googleapis.com/maps/api/geocode/json?latlng=" + car.get("Latitude") + "," + car.get("Longitude") + "&key=AIzaSyB254SclooE0FmuhmjUf6dS_BTrp3zr5Zw";
-            carAddress.open("GET", lagtlngAPI, false);
-            carAddress.send(null);
-            var ca = JSON.parse(carAddress.response);*/
             contentString = contentString +
                 '<div id="bodyContent">' +
                 '<p><b>' + car.get("Brand") + " " + car.get("Model") + '</b></p>' +
@@ -481,7 +476,7 @@ function initMap() {
 
 function addInfoWindowAddresses() {
     infoWindowList.forEach(function (infoWindow) {
-        var url = "https://maps.googleapis.com/maps/api/geocode/json?latlng=" + infoWindow.latitude + "," + infoWindow.longitude + "&key=AIzaSyB254SclooE0FmuhmjUf6dS_BTrp3zr5Zw";
+        var url = "https://maps.googleapis.com/maps/api/geocode/json?latlng=" + infoWindow.latitude + "," + infoWindow.longitude + "&key=AIzaSyDRKU2-51-N915Lv4-_YRRoiPOku5VDS08";
 
         $.ajax({
             type: "GET",
