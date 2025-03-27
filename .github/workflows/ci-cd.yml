@@ -27,7 +27,7 @@ jobs:
 
       # Step 4: Build and run tests
       - name: Run tests
-        run: dotnet test --no-build --verbosity normal
+        run: dotnet test --verbosity normal
 
   deploy:
     needs: build-and-test
