@@ -84,7 +84,7 @@ jobs:
 
           echo "Attempting to curl the health page of our website..."
 
-          response=$(curl --write-out '%{http_code}' --silent --output /dev/null http://ccs.jessica-roscher.com/health)
+          response=$(curl --write-out '%{http_code}' --silent --output /dev/null https://ccs.jessica-roscher.com/health)
           if [ $response -ne 200 ]; then
               echo "Health check failed with status code $response"
               exit 1
