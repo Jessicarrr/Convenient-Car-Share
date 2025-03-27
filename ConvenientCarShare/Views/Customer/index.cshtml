@@ -65,103 +65,6 @@
 
 
 
-<!--
-
-<div class="text-right" id="filter-btn">
-    <button class="btn btn-default" type="button" data-toggle="collapse" data-target="#filter-collapse1" aria-expanded="false" aria-controls="#filter-collapse1">
-        Filter
-    </button>
-</div>
-
-
-<div class="container collapse" id="filter-collapse1" style="text-align:start">
-    <div class="panel panel-default">
-        <div class="panel-body">
-            <form class="form-inline">
-                <div class="row">
-                    <div class="col-lg-4">
-                        <div class="panel panel-default">
-                            <div class="panel-body">
-                                <h4 class="muted">Area</h4>
-                                <div class="input-group">
-                                    <span class="input-group-addon">Postcode</span>
-                                    <input type="number" class="form-control input-sm" min="3000" max="3999" name="postcode" id="postcode" />
-                                </div>
-                                <p></p>
-
-                                <div class="row">
-                                    <div class="col-sm-12">
-
-                                        <p>Melbourne Area Only</p>
-
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-
-                    <div class="col-lg-4">
-                        <div class="panel panel-default">
-                            <div class="panel-body">
-                                <h4 class="muted">Car Detail</h4>
-
-                                <div class="row">
-                                    <div class="col-sm-12">
-                                        <select class="input-sm form-control">
-                                            <option value="" disabled selected>All Car Type</option>
-                                            <option value="SUV">SUV</option>
-                                            <option value="Sedan">Sedan</option>
-                                        </select>
-                                    </div>
-                                </div>
-
-                                <p></p>
-
-                                <div class="input-group">
-                                    <span class="input-group-addon">Min $</span>
-                                    <input type="number" class="input-sm form-control" name="min-price" id="min-price" min="0" max="150" />
-                                    <span class="input-group-addon">Max $</span>
-                                    <input type="number" class="input-sm form-control" name="max-price" id="max-price" min="0" max="150" />
-                                </div>
-
-
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-lg-4">
-                        <div class="panel panel-default">
-                            <div class="panel-body">
-                                <h4 class="muted">Duration</h4>
-                                <div class="input-group">
-                                    <span class="input-group-addon"><i class="glyphicon glyphicon-calendar"></i> Start Time</span>
-                                    <input type='text' class="form-control" id='start-datetime' />
-                                </div>
-                                <p></p>
-                                <div class="input-group">
-                                    <span class="input-group-addon"><i class="glyphicon glyphicon-calendar"></i> End Time&nbsp;</span>
-                                    <input type='text' class="form-control" id='end-datetime' />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="text-center">
-                    <button type="submit" class="btn btn-info">Search</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-
--->
-
-
-
-
-
 
 
 
@@ -279,10 +182,16 @@
             margin: 15px;
         }
 
-        /* Ensure right map size */
         #map {
-            height: 100%;
+            height: 750px;
         }
+
+        @@media (max-width: 768px) {
+            #map {
+                height: 500px;
+            }
+        }
+
 
         /* Made for big map */
         #main-content {
