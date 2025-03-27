@@ -17,7 +17,7 @@ namespace ConvenientCarShare.Data
             IServiceProvider services)
         {
             var context = services.GetRequiredService<ApplicationDbContext>();
-            context.Database.EnsureCreated();
+            //context.Database.EnsureCreated();
 
             var store = new RoleStore<IdentityRole>(context);
             await EnsureRolesAsync(store, context);

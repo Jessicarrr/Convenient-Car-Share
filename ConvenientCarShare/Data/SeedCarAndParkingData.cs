@@ -40,7 +40,7 @@ namespace ConvenientCarShare.Data
             };
 
             var context = services.GetRequiredService<ApplicationDbContext>();
-            context.Database.EnsureCreated();
+            //context.Database.EnsureCreated();
 
             EnsureParkingAreas(context, spots);
             EnsureCars(context, cars);

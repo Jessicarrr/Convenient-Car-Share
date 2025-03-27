@@ -20,7 +20,7 @@ namespace ConvenientCarShare.Data
             IServiceProvider services)
         {
             var context = services.GetRequiredService<ApplicationDbContext>();
-            context.Database.EnsureCreated();
+            //context.Database.EnsureCreated();
 
             var UserManager = services
                 .GetRequiredService<UserManager<ApplicationUser>>();
