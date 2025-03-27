@@ -1,0 +1,71 @@
+name: CI/CD Pipeline
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the repository
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # Step 2: Setup the .NET environment
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v2
+        with:
+          dotnet-version: '9.0.201'
+
+      # Step 3: Get dependencies / NuGet packages
+      - name: Restore dependencies
+        run: dotnet restore
+
+      # Step 4: Build and run tests
+      - name: Run tests
+        run: dotnet test --no-build --verbosity normal
+
+  deploy:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the repository
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # Step 2: Deploy to EC2 using SSH
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v0.1.5
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          port: 22
+          script: |
+            if [ ! -d "/var/app/Convenient-Car-Share/.git" ]; then
+                mkdir -p /var/app/Convenient-Car-Share/
+                cd /var/app/Convenient-Car-Share/
+                git clone https://github.com/Jessicarrr/Convenient-Car-Share.git .
+            else
+                cd /var/app/Convenient-Car-Share/
+                git pull origin main
+            fi
+
+            dotnet publish --configuration Release --output ./publish
+            sudo systemctl restart Convenient-Car-Share-Service
+
+      # Step 3: Health Check
+      - name: Health Check
+        run: |
+          sleep 20 # wait a few seconds to let the app restart.
+          response=$(curl --write-out '%{http_code}' --silent --output /dev/null http://ccs.jessica-roscher.com/health)
+          if [ $response -ne 200 ]; then
+              echo "Health check failed with status code $response"
+              exit 1
+          fi
+          echo "Health check passed!"
