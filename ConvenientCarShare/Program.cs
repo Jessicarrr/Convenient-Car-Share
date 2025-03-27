@@ -1,6 +1,8 @@
 ﻿using System;
+using ConvenientCarShare.Models;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -22,6 +24,9 @@ namespace ConvenientCarShare
 
                 try
                 {
+                    var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                    context.Database.Migrate();
+
                     Data.SeedAdminData.InitializeAsync(services).Wait();
                     Data.SeedMessageData.InitializeAsync(services).Wait();
                     Data.SeedCarAndParkingData.Initialize(services);
@@ -33,6 +38,7 @@ namespace ConvenientCarShare
                     logger.LogError(ex, "Error occurred seeding the DB.");
                 }
             }
+
         }
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
