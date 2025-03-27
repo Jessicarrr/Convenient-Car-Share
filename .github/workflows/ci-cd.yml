@@ -47,22 +47,43 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           port: 22
           script: |
+            set -e
+            echo "Launched script to start the Convenient Car Share app..."
+
             if [ ! -d "/var/app/Convenient-Car-Share/.git" ]; then
+                echo "No app folder exists yet. It will be created."
                 mkdir -p /var/app/Convenient-Car-Share/
                 cd /var/app/Convenient-Car-Share/
+                echo "Folders created. Now cloning project..."
                 git clone https://github.com/Jessicarrr/Convenient-Car-Share.git .
             else
+                echo "An existing app folder has been found. It will be used."
                 cd /var/app/Convenient-Car-Share/
+                echo "Pulling from main branch in repository..."
                 git pull origin main
             fi
 
+            echo "Attempting to use dotnet publish on the app..."
             dotnet publish --configuration Release --output ./publish
-            sudo systemctl restart Convenient-Car-Share-Service
+
+            if systemctl status Convenient-Car-Share-Service >/dev/null 2>&1; then
+              echo "Found systemctl service for Convenient Car Share. Restarting it now..."
+              sudo systemctl restart Convenient-Car-Share-Service
+            else
+              echo "Tried to find systemctl service Convenient-Car-Share-Service but it did not exist."
+              echo "This is OK - but consider setting up a service so that our app runs automatically."
+            fi
+
+            echo "Convenient-Car-Share deployment script completed."
 
       # Step 3: Health Check
       - name: Health Check
         run: |
+          echo "Health check started. Now waiting 20 seconds..."
           sleep 20 # wait a few seconds to let the app restart.
+
+          echo "Attempting to curl the health page of our website..."
+
           response=$(curl --write-out '%{http_code}' --silent --output /dev/null http://ccs.jessica-roscher.com/health)
           if [ $response -ne 200 ]; then
               echo "Health check failed with status code $response"
