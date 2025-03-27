@@ -44,7 +44,8 @@ namespace ConvenientCarShare.Areas.Identity.Pages.Account.Manage
                 personalData.Add(p.Name, p.GetValue(user)?.ToString() ?? "null");
             }
 
-            Response.Headers.Add("Content-Disposition", "attachment; filename=PersonalData.json");
+            Response.Headers["Content-Disposition"] = "attachment; filename=PersonalData.json";
+
             return new FileContentResult(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(personalData)), "text/json");
         }
     }

@@ -165,6 +165,8 @@ namespace Test_Xunit_CCS
 
             Assert.Empty(result.errors);
             Assert.Contains("A new activation code email has been sent", result.messages.FirstOrDefault());
+            Assert.NotNull(testUser.Email);
+
             emailSenderMock.Verify(es => es.SendEmailAsync(
                 testUser.Email,
                 "Activation Code",
@@ -360,6 +362,8 @@ namespace Test_Xunit_CCS
 
             Assert.Empty(model.SubmissionErrors);
             Assert.NotNull(model.ActivationCode);
+            Assert.NotNull(testUser.Email);
+
             emailSenderMock.Verify(es => es.SendEmailAsync(
                 testUser.Email,
                 "Activation Code",

@@ -78,6 +78,8 @@ namespace Test_Xunit_CCS
             Assert.Equal(Constants.statusFinished, updatedBooking.Status);
 
             // verify car's parking spot and coordinates are updated.
+            Assert.NotNull(updatedCar);
+            Assert.NotNull(updatedCar.CurrentlyParkedAt);
             Assert.Equal(returnSpot.Id, updatedCar.CurrentlyParkedAt.Id);
             Assert.Equal(returnSpot.Latitude, updatedCar.Latitude);
             Assert.Equal(returnSpot.Longitude, updatedCar.Longitude);

@@ -121,7 +121,7 @@ namespace ConvenientCarShare.Services
             return model;
         }
 
-        public async Task<PaymentModel> GetPaymentModelAsync(int carId, DateTime startDate, DateTime endDate, decimal price, ApplicationUser currentUser, ITempDataDictionary tempData)
+        public Task<PaymentModel> GetPaymentModelAsync(int carId, DateTime startDate, DateTime endDate, decimal price, ApplicationUser currentUser, ITempDataDictionary tempData)
         {
             bool isPeriodValid = IsBookingPeriodValid(startDate, endDate);
 
@@ -142,7 +142,7 @@ namespace ConvenientCarShare.Services
                 // Depending on your design, you could throw an exception here.
             }
 
-            return new PaymentModel
+            var newModel = new PaymentModel
             {
                 CarId = carId,
                 StartDate = startDate,
@@ -150,6 +150,8 @@ namespace ConvenientCarShare.Services
                 Price = actualPrice,
                 FullName = currentUser.Name
             };
+
+            return Task.FromResult(newModel);
         }
 
         public async Task<PaymentModel> SubmitPaymentAsync(
