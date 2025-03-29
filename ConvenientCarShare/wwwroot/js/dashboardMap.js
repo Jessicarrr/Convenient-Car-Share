@@ -42,13 +42,12 @@ $(document).ready(function () {
 
         //prevent default submit function.
         event.preventDefault();
-        if ($('#postcode').val() != "") {
+        // had to remove geocode due to api restrictions
+        /*if ($('#postcode').val() != "") {
 
             geocodeLatLng(geocoder, map, infowindowm);
 
-        }
-
-
+        }*/
 
         var startDatetime = moment($('#start-datetime').val(), "YYYY-MM-DD HH:mm").toDate();
         if ($('#end-datetime').val() == "") {
@@ -62,7 +61,7 @@ $(document).ready(function () {
         $.ajax({
             type: "GET",
 
-            url: 'Customer/GetCarsNotBookedDuring',
+            url: 'GetCarsNotBookedDuring',
 
             data: { StartDate: startDatetime.toISOString(), EndDate: endDatetime.toISOString() },
 
