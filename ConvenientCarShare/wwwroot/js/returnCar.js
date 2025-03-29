@@ -13,6 +13,7 @@ function initMap() {
     var options = {
         zoom: 15,
         center: { lat: -37.8136, lng: 144.9631 },
+        mapId: 'convenient-car-share-map-id',   
 
     };
     map = new google.maps.Map(document.getElementById('map'), options);
@@ -41,7 +42,7 @@ function initMap() {
         });
 
 
-        var infoWindow = new google.maps.InfoWindow(
+        let infoWindow = new google.maps.InfoWindow(
             {
                 content:
                     "<p>This parking is availiable now.</p>" + 
@@ -55,7 +56,7 @@ function initMap() {
 
         infoWindowList.push(infoWindow);
 
-        var marker = new google.maps.marker.AdvancedMarkerElement({
+        let marker = new google.maps.marker.AdvancedMarkerElement({
             position: {
                 lat: spot.get("Latitude"),
                 lng: spot.get("Longitude")
