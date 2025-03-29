@@ -41,7 +41,7 @@ namespace ConvenientCarShare.Services
             }
 
             // check if the booking has already been finished.
-            if (currBooking.ReturnArea != null)
+            if (currBooking.ReturnArea != null || currBooking.Status == Constants.statusFinished)
             {
                 return (false, 400, "The booking has already finished!");
             }
