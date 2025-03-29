@@ -69,7 +69,13 @@
 
         /* Ensure right map size */
         #map {
-            height: 100%;
+            height: 750px;
+        }
+
+        @@media (max-width: 768px) {
+            #map {
+                height: 500px;
+            }
         }
 
         /* Made for big map */
