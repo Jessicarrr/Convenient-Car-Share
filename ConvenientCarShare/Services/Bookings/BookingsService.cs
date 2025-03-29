@@ -213,7 +213,7 @@ namespace ConvenientCarShare.Services
             await _emailSender.SendEmailAsync(
                 booking.User.Email,
                 "Activation Code",
-                $"Your activation code is {booking.ActivationCode}. Or click <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>here</a> to start your booking and unlock the car.");
+                $"Congratulations on booking a car rental! When you are ready to unlock the car, click <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>here</a> to automatically unlock it.");
 
             return model;
         }
