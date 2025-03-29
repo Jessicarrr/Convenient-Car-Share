@@ -108,7 +108,7 @@ namespace Test_Xunit_CCS
                 StartDate = DateTime.Now.AddHours(3),
                 EndDate = DateTime.Now.AddHours(5),
                 Price = 200.00m,
-                Status = Constants.statusCancelled, // wrong status for activation code resend
+                Status = Constants.statusCancelled, // wrong status for email resend
                 ActivationCode = "RESEND1"
             };
             context.Bookings.Add(booking);
@@ -124,7 +124,7 @@ namespace Test_Xunit_CCS
                 .Returns("http://callbackurl");
 
             var result = await service.ResendActivationCodeAsync(3, testUser, urlHelperMock.Object, "http");
-            Assert.Contains("cannot have an activation code", result.errors.FirstOrDefault());
+            Assert.Contains("booking cannot be activated", result.errors.FirstOrDefault());
         }
 
         [Fact]
@@ -164,12 +164,12 @@ namespace Test_Xunit_CCS
             var result = await service.ResendActivationCodeAsync(4, testUser, urlHelperMock.Object, "http");
 
             Assert.Empty(result.errors);
-            Assert.Contains("A new activation code email has been sent", result.messages.FirstOrDefault());
+            Assert.Contains("A new email has been sent", result.messages.FirstOrDefault());
             Assert.NotNull(testUser.Email);
 
             emailSenderMock.Verify(es => es.SendEmailAsync(
                 testUser.Email,
-                "Activation Code",
+                "You May Now Unlock Your Car",
                 It.Is<string>(s => s.Contains("http://callbackurl"))),
                 Times.Once);
         }
@@ -366,7 +366,7 @@ namespace Test_Xunit_CCS
 
             emailSenderMock.Verify(es => es.SendEmailAsync(
                 testUser.Email,
-                "Activation Code",
+                "You May Now Unlock Your Car",
                 It.IsAny<string>()),
                 Times.Once);
 

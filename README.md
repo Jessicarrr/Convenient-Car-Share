@@ -152,7 +152,7 @@ These are configured in your deployment environment and managed via GitHub Secre
 
 5. **Manage Bookings:**  
    - Use the "Manage Bookings" option to view, extend, or cancel your active bookings.
-   - Start your booking by clicking the activation code link sent via email.
+   - Start your booking by clicking the link sent via email.
 
 ## Contributing
 
