@@ -396,13 +396,23 @@ function initMap() {
     };
     map = new google.maps.Map(document.getElementById('map'), options);
 
-    var image = {
+    // A marker with a custom PNG glyph.
+    const imageElement = document.createElement("img");
+
+    imageElement.src =
+        "/images/car.png";
+
+    const glyphPngPinElement = new PinElement({
+        glyph: imageElement,
+    });
+
+    /*var image = {
         url: '/images/car.png',
         width: 27,
         height: 39,
         size: new google.maps.Size(27, 39)
 
-    };
+    };*/
 
     
     for (let [key, value] of spotsAndCars) {
@@ -448,7 +458,7 @@ function initMap() {
 
         infoWindowList.push(infoWindow);
 
-        var marker = new google.maps.Marker({
+        var marker = new google.maps.marker.AdvancedMarkerElement({
             position: {
                 lat: parkingArea.get("Latitude"),
                 lng: parkingArea.get("Longitude")
@@ -456,8 +466,8 @@ function initMap() {
             },
             map: map,
             draggable: false,
-            icon: image,
-            animation: google.maps.Animation.DROP,
+            content: glyphSvgPinElement.element,
+            //animation: google.maps.Animation.DROP,
             title: "Car park spot",
             infowindow: infoWindow
 
@@ -603,7 +613,7 @@ $(document).ready(function () {
         $.ajax({
             type: "GET",
 
-            url: 'GetCarsNotBookedDuring',
+            url: '/Customer/GetCarsNotBookedDuring',
 
             data: { StartDate: startDatetime.toISOString(), EndDate: endDatetime.toISOString() },
 
@@ -722,211 +732,18 @@ function initMap() {
     var options = {
         zoom: 15,
         center: { lat: -37.8136, lng: 144.9631 },
-        styles: [
-            {
-                "elementType": "geometry",
-                "stylers": [
-                    {
-                        "color": "#f5f5f5"
-                    }
-                ]
-            },
-            {
-                "elementType": "labels.icon",
-                "stylers": [
-                    {
-                        "visibility": "off"
-                    }
-                ]
-            },
-            {
-                "elementType": "labels.text.fill",
-                "stylers": [
-                    {
-                        "color": "#616161"
-                    }
-                ]
-            },
-            {
-                "elementType": "labels.text.stroke",
-                "stylers": [
-                    {
-                        "color": "#f5f5f5"
-                    }
-                ]
-            },
-            {
-                "featureType": "administrative",
-                "elementType": "geometry",
-                "stylers": [
-                    {
-                        "visibility": "off"
-                    }
-                ]
-            },
-            {
-                "featureType": "administrative.land_parcel",
-                "elementType": "labels.text.fill",
-                "stylers": [
-                    {
-                        "color": "#bdbdbd"
-                    }
-                ]
-            },
-            {
-                "featureType": "poi",
-                "stylers": [
-                    {
-                        "visibility": "off"
-                    }
-                ]
-            },
-            {
-                "featureType": "poi",
-                "elementType": "geometry",
-                "stylers": [
-                    {
-                        "color": "#eeeeee"
-                    }
-                ]
-            },
-            {
-                "featureType": "poi",
-                "elementType": "labels.text.fill",
-                "stylers": [
-                    {
-                        "color": "#757575"
-                    }
-                ]
-            },
-            {
-                "featureType": "poi.park",
-                "elementType": "geometry",
-                "stylers": [
-                    {
-                        "color": "#e5e5e5"
-                    }
-                ]
-            },
-            {
-                "featureType": "poi.park",
-                "elementType": "labels.text.fill",
-                "stylers": [
-                    {
-                        "color": "#9e9e9e"
-                    }
-                ]
-            },
-            {
-                "featureType": "road",
-                "elementType": "geometry",
-                "stylers": [
-                    {
-                        "color": "#ffffff"
-                    }
-                ]
-            },
-            {
-                "featureType": "road",
-                "elementType": "labels.icon",
-                "stylers": [
-                    {
-                        "visibility": "off"
-                    }
-                ]
-            },
-            {
-                "featureType": "road.arterial",
-                "elementType": "labels.text.fill",
-                "stylers": [
-                    {
-                        "color": "#757575"
-                    }
-                ]
-            },
-            {
-                "featureType": "road.highway",
-                "elementType": "geometry",
-                "stylers": [
-                    {
-                        "color": "#dadada"
-                    }
-                ]
-            },
-            {
-                "featureType": "road.highway",
-                "elementType": "labels.text.fill",
-                "stylers": [
-                    {
-                        "color": "#616161"
-                    }
-                ]
-            },
-            {
-                "featureType": "road.local",
-                "elementType": "labels.text.fill",
-                "stylers": [
-                    {
-                        "color": "#9e9e9e"
-                    }
-                ]
-            },
-            {
-                "featureType": "transit",
-                "stylers": [
-                    {
-                        "visibility": "off"
-                    }
-                ]
-            },
-            {
-                "featureType": "transit.line",
-                "elementType": "geometry",
-                "stylers": [
-                    {
-                        "color": "#e5e5e5"
-                    }
-                ]
-            },
-            {
-                "featureType": "transit.station",
-                "elementType": "geometry",
-                "stylers": [
-                    {
-                        "color": "#eeeeee"
-                    }
-                ]
-            },
-            {
-                "featureType": "water",
-                "elementType": "geometry",
-                "stylers": [
-                    {
-                        "color": "#c9c9c9"
-                    }
-                ]
-            },
-            {
-                "featureType": "water",
-                "elementType": "labels.text.fill",
-                "stylers": [
-                    {
-                        "color": "#9e9e9e"
-                    }
-                ]
-            }
-        ]
-
+        mapId: 'convenient-car-share-map-id',
     };
+
     map = new google.maps.Map(document.getElementById('map'), options);
 
-    var image = {
+    /*var image = {
         url: '/images/car.png',
         width: 27,
         height: 39,
         size: new google.maps.Size(27, 39)
 
-    };
+    };*/
 
     
     for (let [key, value] of spotsAndCars) {
@@ -961,7 +778,17 @@ function initMap() {
             var wordCar = totalCar + " cars ";
         }
 
-        var infoWindow = new google.maps.InfoWindow(
+        // A marker with a custom PNG glyph.
+        const imageElement = document.createElement("img");
+
+        imageElement.src =
+            "/images/car.png";
+
+        const glyphPngPinElement = new google.maps.marker.PinElement({
+            glyph: imageElement,
+        });
+
+        let infoWindow = new google.maps.InfoWindow(
             {
 
                 content: '<div class="mapInfoWindow">' + '<h5 id="iwAddressField"></h5>' + '<div class="alert alert-success">' + wordCar + 'in current parking' +
@@ -972,7 +799,7 @@ function initMap() {
 
         infoWindowList.push(infoWindow);
 
-        var marker = new google.maps.Marker({
+        let marker = new google.maps.marker.AdvancedMarkerElement({
             position: {
                 lat: parkingArea.get("Latitude"),
                 lng: parkingArea.get("Longitude")
@@ -980,14 +807,30 @@ function initMap() {
             },
             map: map,
             draggable: false,
-            icon: image,
-            animation: google.maps.Animation.DROP,
+            content: glyphPngPinElement.element,
+            //animation: google.maps.Animation.DROP,
             title: "Car park spot",
-            infowindow: infoWindow
+            //infowindow: infoWindow
 
         });
 
-        google.maps.event.addListener(marker, 'click', function () {
+        marker.addListener("gmp-click", () => {
+            infoWindowList.forEach(function (window) {
+                window.close();
+
+            });
+
+            infoWindow.open({
+                anchor: marker,
+                map: map,
+                shouldFocus: true
+            });
+
+            //center the map onclick
+            //map.setCenter(this.getPosition());
+        });
+
+        /*google.maps.event.addListener(marker, 'click', function () {
             infoWindowList.forEach(function (window) {
                 window.close();
 
@@ -1000,7 +843,7 @@ function initMap() {
             //center the map onclick
             map.setCenter(this.getPosition());
 
-        });
+        });*/
 
     }
 
