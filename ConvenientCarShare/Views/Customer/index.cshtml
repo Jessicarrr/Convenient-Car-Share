@@ -33,10 +33,15 @@
 
                 <div class="input-group">
                     <span class="input-group-addon">Min $</span>
-                    <input type="number" class="input-sm form-control" name="min-price" id="min-price" min=0 max=150 value=0 required/>
+                    <input type="number" class="input-sm form-control" name="min-price" id="min-price" min="0" max="9999" value="0" required
+                           oninvalid="this.setCustomValidity('Please enter a minimum price between $0 and $9999.')"
+                           oninput="this.setCustomValidity('')" />
                     <span class="input-group-addon">Max $</span>
-                    <input type="number" class="input-sm form-control" name="max-price" id="max-price" min=0 max=150 value=150 required/>
+                    <input type="number" class="input-sm form-control" name="max-price" id="max-price" min="0" max="9999" value="150" required
+                           oninvalid="this.setCustomValidity('Please enter a maximum price between $0 and $9999.')"
+                           oninput="this.setCustomValidity('')" />
                 </div>
+
 
                 <div class="row">
                     <div class="input-group">
