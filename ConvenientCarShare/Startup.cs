@@ -7,10 +7,12 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
+using System.Linq;
 
 namespace ConvenientCarShare
 {
@@ -55,7 +57,12 @@ namespace ConvenientCarShare
 
             services.AddMvc(); // .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
-            services.AddResponseCompression();
+            services.AddResponseCompression(options =>
+            {
+                options.EnableForHttps = true;
+                options.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(["application/json"]);
+            });
+
             services.AddResponseCaching();
 
             services.AddScoped<IRegistrationService, RegistrationService>();
