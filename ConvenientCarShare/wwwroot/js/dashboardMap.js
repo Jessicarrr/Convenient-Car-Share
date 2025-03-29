@@ -76,7 +76,7 @@ $(document).ready(function () {
         $.ajax({
             type: "GET",
 
-            url: 'GetCarsNotBookedDuring',
+            url: '/Customer/GetCarsNotBookedDuring',
 
             data: { StartDate: startDatetime.toISOString(), EndDate: endDatetime.toISOString() },
 
