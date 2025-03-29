@@ -77,17 +77,17 @@ namespace ConvenientCarShare.Services
             }
             else if (booking.Status != Constants.statusBooked)
             {
-                model.errors.Add("That booking cannot have an activation code applied anymore because it has a status of " + booking.Status);
+                model.errors.Add("That booking cannot be activated anymore because it has a status of " + booking.Status);
                 return model;
             }
 
             var callbackUrl = urlHelper.Action("OnGet", "StartBooking", new { booking.ActivationCode }, scheme);
             await _emailSender.SendEmailAsync(
                 booking.User.Email,
-                "Activation Code",
+                "You May Now Unlock Your Car",
                 $"You may click <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>here</a> to start your booking and unlock the car. Only do this when you're physically near the car and ready to start driving!");
 
-            model.messages.Add("A new activation code email has been sent.");
+            model.messages.Add("A new email has been sent.");
             return model;
         }
 
@@ -212,7 +212,7 @@ namespace ConvenientCarShare.Services
             var callbackUrl = urlHelper.Action("OnGet", "StartBooking", new { booking.ActivationCode }, scheme);
             await _emailSender.SendEmailAsync(
                 booking.User.Email,
-                "Activation Code",
+                "You May Now Unlock Your Car",
                 $"Congratulations on booking a car rental! When you are ready to unlock the car, click <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>here</a> to automatically unlock it.");
 
             return model;
