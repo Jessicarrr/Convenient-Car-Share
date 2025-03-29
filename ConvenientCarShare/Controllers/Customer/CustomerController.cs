@@ -41,6 +41,11 @@ namespace ConvenientCarShare.Controllers
 
         public async Task<JsonResult> GetCarsNotBookedDuring(DateTime startDate, DateTime endDate)
         {
+            if (startDate > endDate)
+            {
+                return Json(new { error = "The end date must be later than the start date." });
+            }
+
             var availableCars = await _customerService.GetCarsNotBookedDuringAsync(startDate, endDate);
             // Serialize the list to JSON.
             var jsonResult = JsonConvert.SerializeObject(availableCars);
